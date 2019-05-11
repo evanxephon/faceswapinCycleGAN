@@ -1,5 +1,6 @@
 import torch.nn as nn
 from block import *
+import loss
 
 class Encoder(nn.Module):
 
@@ -195,3 +196,113 @@ class Discriminator(nn.Module):
         x = self.conv4(x)
 
         return x
+
+    
+class CycleGAN(nn.Module):
+    
+    def __init__(self, config):
+        
+        super(CycleGAN, self).__init__()
+        
+        self.Encoder = Encoder()
+        self.DecoderA = Decoder()
+        self.DecoderB = Decoder()
+        
+        self.isTrain = config['isTrain']
+        self.cycle_consistency_loss = False
+        self.loss_weight_config = config['loss_weight_config']
+        
+        if self.isTrain:
+            self.DiscriminatorA = Discriminator()
+            self.DiscriminatorB = Discriminator()
+            
+            self.optimizer_G = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
+                                                                self.DecoderB.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))        
+            self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
+                                                                 lr=opt.lr, betas=(opt.beta1, 0.999)) 
+            self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
+                                                    self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
+                                                    self.DiscriminatorB.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
+            
+            self.optimizers.append(self.optimizer_G)
+            self.optimizers.append(self.optimizer_D)
+            self.optimizers.append(self.optimizer_Cycle)
+        
+    def set_input(self, input):
+        
+        self.warpedA = input['warpedA']
+        self.warpedB = input['warpedB']
+        self.realA = input['realA']
+        self.realB = input['realB']
+        
+    def forward(self):
+        
+        # mask(Alpha) output and BGR output
+        self.maskA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1]
+        self.outputA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1:]
+        
+        self.maskB = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1]
+        self.outputB = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1:]
+        
+        # combine mask and output to get fake result
+        self.fakeA = self.maskA * self.outputA + (1 - self.maskA) * self.warpedA
+        self.fakeB = self.maskB * self.outputB + (1 - self.maskB) * self.warpedB
+        
+        if isTrain:
+            self.fakeApred = self.Discriminator(self.fakeA)
+            self.fakeBpred = self.Discriminator(self.fakeB)
+            self.realApred = self.Discriminator(self.realA)
+            self.realBpred = self.Discriminator(self.realB)
+        
+        if self.cycle_consistency_loss:
+            self.cycleA = self.DecoderA(self.Encoder(self.outputB))
+            self.cycleB = self.DecoderB(self.Encoder(self.outputA))
+   
+    def backward_D_A(self):
+        loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_D_A.backward()
+        
+    def backward_D_B(self):
+        loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config)
+        loss_D_B.backward()
+      
+    def backward_G_A(self):
+        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weigth_config)
+        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_G_A.backward()
+        
+    def backward_G_B(self):
+        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weigth_config)
+        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_G_A.backward()
+        
+    def backward_Cycle_A(self):
+        loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config)
+        loss_G_A.backward()
+        
+    def backward_Cycle_B(self):
+        loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config)
+        loss_G_B.backward()
+        
+    def optimize_parameter(self);
+    
+        self.forward()
+        
+        self.set_requires_grad([self.Encoder, self.DecoderA, self.DecoderB], True)
+        self.optimizer_D.zero_grad()
+        self.backward_D_A()
+        self.backward_D_B()
+        self.optimizer_D.step()
+        
+        if self.cycle_consistency_loss:
+            self.backward_Cycle_A()
+            self.backward_Cycle_B()
+            self.optimizer_Cycle.step()
+        
+        self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
+        self.optimizer_G.zero_grad()
+        
+        self.backward_G_A()
+        self.backward_G_B()
+        self.optimizer_G.step()
+    
