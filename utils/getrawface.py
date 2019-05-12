@@ -144,4 +144,4 @@ def landmarks_match_mtcnn(src_im, src_landmarks, tar_landmarks):
 
 
 if __name__ == '__main__':
-    getFaceInVideo('./**.avi','./bush/',fps=10)
+    getFaceInVideo('../**.avi','../faceA/',fps=10)
