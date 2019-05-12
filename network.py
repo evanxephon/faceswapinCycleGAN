@@ -212,6 +212,8 @@ class CycleGAN(nn.Module):
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
         
+        self.
+        
         if self.isTrain:
             self.DiscriminatorA = Discriminator()
             self.DiscriminatorB = Discriminator()
@@ -237,6 +239,11 @@ class CycleGAN(nn.Module):
         
     def forward(self):
         
+        
+        if not self.isTrain or self.cycle_consistency_loss:
+            self.warpedA = self.realB
+            self.warpedB = self.realA
+            
         # mask(Alpha) output and BGR output
         self.maskA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1]
         self.outputA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1:]
@@ -248,15 +255,20 @@ class CycleGAN(nn.Module):
         self.fakeA = self.maskA * self.outputA + (1 - self.maskA) * self.warpedA
         self.fakeB = self.maskB * self.outputB + (1 - self.maskB) * self.warpedB
         
-        if isTrain:
+        
+        if self.isTrain:
             self.fakeApred = self.Discriminator(self.fakeA)
             self.fakeBpred = self.Discriminator(self.fakeB)
             self.realApred = self.Discriminator(self.realA)
             self.realBpred = self.Discriminator(self.realB)
         
+        
         if self.cycle_consistency_loss:
+            
             self.cycleA = self.DecoderA(self.Encoder(self.outputB))
             self.cycleB = self.DecoderB(self.Encoder(self.outputA))
+            
+            
    
     def backward_D_A(self):
         loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config)
@@ -278,11 +290,11 @@ class CycleGAN(nn.Module):
         
     def backward_Cycle_A(self):
         loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config)
-        loss_G_A.backward()
+        loss_Cycle_A.backward()
         
     def backward_Cycle_B(self):
         loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config)
-        loss_G_B.backward()
+        loss_Cycle_B.backward()
         
     def optimize_parameter(self);
     
@@ -299,10 +311,20 @@ class CycleGAN(nn.Module):
             self.backward_Cycle_B()
             self.optimizer_Cycle.step()
         
-        self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
-        self.optimizer_G.zero_grad()
+        else:
+            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
+            self.optimizer_G.zero_grad()
+
+            self.backward_G_A()
+            self.backward_G_B()
+            self.optimizer_G.step()
         
-        self.backward_G_A()
-        self.backward_G_B()
-        self.optimizer_G.step()
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                # print(m.weight.data.type())
+                # input()
+                # m.weight.data.fill_(1.0)
+                torch.nn.init.xavier_uniform_(m.weight, gain=1)
+                #print(m.weight)
     
