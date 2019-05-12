@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from data_augmentation import *
 
 
-class dataset(data.Dataset):
+class Dataset(data.Dataset):
     def __init__(self, config):
         
         self.config = config
@@ -59,7 +59,7 @@ class dataset(data.Dataset):
     def get_transform(config):
         
         if 'rotate_degree' in config.keys():
-            transformer_list.append(transforms.RandomRotation(config['rotate_degree']))
+            transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
             
         if 'flip' in config.keys():
             transformer_list.append(transforms.RandomHorizontalFlip())
