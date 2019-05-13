@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 from src import detect_faces
 from PIL import Image,ImageOps,ImageDraw
-from matplotlib.pyplot import *
+import matplotlib.pyplot as plt 
 from umeyama import umeyama
 import numpy as np
 
