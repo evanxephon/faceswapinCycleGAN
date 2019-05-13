@@ -2,9 +2,9 @@ import cv2
 import os
 import sys
 sys.path.append('..')
-from src import detect_faces
+from mtcnn import detect_faces
 from PIL import Image,ImageOps,ImageDraw
-import matplotlib.pyplot as plt 
+#import matplotlib.pyplot as plt 
 from umeyama import umeyama
 import numpy as np
 
@@ -135,7 +135,7 @@ def landmarks_match_mtcnn(src_im, src_landmarks, tar_landmarks):
     src_tmp = [(int(xy[0]), int(xy[1])) for xy in src_landmarks]
     tar_tmp = [(int(xy[0]), int(xy[1])) for xy in tar_landmarks]
     mat = umeyama(np.array(src_tmp), np.array(tar_tmp), False)[0:2]
-    result = cv2.warpAffine(src_im, ,mat, (src_size[1], src_size[0]), borderMode=cv2.BORDER_REPLICATE) 
+    result = cv2.warpAffine(src_im, mat, (src_size[1], src_size[0]), borderMode=cv2.BORDER_REPLICATE) 
     
     #print(f'result:{result}')
     #print(f'resultsize:{result.shape}')
@@ -144,4 +144,4 @@ def landmarks_match_mtcnn(src_im, src_landmarks, tar_landmarks):
 
 
 if __name__ == '__main__':
-    getFaceInVideo('../**.avi','../faceA/',fps=10)
+    getFaceInVideo('../bush.avi','../faceA/',fps=10)
