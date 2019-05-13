@@ -211,8 +211,9 @@ class CycleGAN(nn.Module):
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
+          
         
-        self.
+        self.display_epoch = False
         
         if self.isTrain:
             self.DiscriminatorA = Discriminator()
@@ -240,6 +241,16 @@ class CycleGAN(nn.Module):
     def forward(self):
         
         
+	if self.display_epoch == True:
+	    self.displayBmask = self.DecoderA(self.Encoder(self.realB))[:,:,:,1]
+            self.displayAoutput = self.DecoderA(self.Encoder(self.realA))[:,:,:,1:]
+
+            self.displayBmask = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1]
+            self.displayBoutput = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1:]
+
+            self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
+            self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
+              
         if not self.isTrain or self.cycle_consistency_loss:
             self.warpedA = self.realB
             self.warpedB = self.realA

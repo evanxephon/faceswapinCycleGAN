@@ -14,7 +14,7 @@ config = {'isTrain': True,
           'augmantation':{'rotate_degree': 5,
                           'flip': True,
                          },
-          'imagepath':['./faceA', './faceB'],
+          'imagepath':['./faceA/align', './faceB/align'],
           
          }
 
@@ -39,8 +39,8 @@ if __name__ == '__main__':
             model.optimizer_parameters()
                     
         if epoch // config['display_interval'] == 0:
-            for image in range(len(model.fakeA)):
-                plt.imshow(image)
+            for batch in range(len(model.displayA)):
+                plt.imshow(model.displayA[batch])
                 plt.show()
                     
         print(f'loss')
