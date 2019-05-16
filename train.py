@@ -1,6 +1,7 @@
 import network
 import data_loader
 import matplotlib.pyplot as plt
+from keras_vggface.vggface import VGGFace
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -19,9 +20,13 @@ config = {'isTrain': True,
          }
 
 if __name__ == '__main__':
-          
+    
+    #build model to calculate perceptual loss 
+    vggface = VGGFace(include_top=False, model='resnet50', input_shape=(224, 224, 3))
+    vggface_feats = network.vggface_for_pl(vggface,config['loss_weight_config'])      
+        
     dataset = data_loader.Dataset()
-    model = network.CycleGAN()
+    model = network.CycleGAN(vggface_feats)
     model.train()
     model.cuda()
     model.initialize_weights()
@@ -46,5 +51,4 @@ if __name__ == '__main__':
         print(f'loss')
 
 
-                 
             

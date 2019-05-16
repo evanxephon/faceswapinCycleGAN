@@ -1,6 +1,7 @@
 import torch.nn as nn
 from block import *
 import loss
+from keras.models import Model
 
 class Encoder(nn.Module):
 
@@ -200,7 +201,7 @@ class Discriminator(nn.Module):
     
 class CycleGAN(nn.Module):
     
-    def __init__(self, config):
+    def __init__(self, vggface, config):
         
         super(CycleGAN, self).__init__()
         
@@ -211,8 +212,8 @@ class CycleGAN(nn.Module):
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
+        self.vggface_feats = vggface
           
-        
         self.display_epoch = False
         
         if self.isTrain:
@@ -282,28 +283,38 @@ class CycleGAN(nn.Module):
             
    
     def backward_D_A(self):
+        
         loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config)
         loss_D_A.backward()
         
     def backward_D_B(self):
+        
         loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config)
         loss_D_B.backward()
       
     def backward_G_A(self):
-        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weigth_config)
+        
+        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weight_config)
         loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config)
+        
         loss_G_A.backward()
         
     def backward_G_B(self):
+        
         loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weigth_config)
         loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config)
+        
         loss_G_A.backward()
         
     def backward_Cycle_A(self):
+        
         loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config)
         loss_Cycle_A.backward()
         
     def backward_Cycle_B(self):
+        
         loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config)
         loss_Cycle_B.backward()
         
@@ -339,3 +350,16 @@ class CycleGAN(nn.Module):
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
                 #print(m.weight)
     
+def vggface_for_pl(self, vggface_keras, **loss_weight_config):
+    
+    vggface_keras,trainable = False
+    
+    out_size112 = vggface_model.layers[15].output
+    out_size55 = vggface_model.layers[35].output
+    out_size28 = vggface_model.layers[77].output
+    out_size7 = vggface_model.layers[-3].output
+    
+    vggface_feats = Model(vggface_model.input, [out_size112, out_size55, out_size28, out_size7])
+    vggface_feats.trainable = False
+    
+    return vggface_feats
