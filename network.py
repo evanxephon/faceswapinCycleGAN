@@ -2,6 +2,7 @@ import torch.nn as nn
 from block import *
 import loss
 from keras.models import Model
+import itertools
 
 class Encoder(nn.Module):
 
@@ -126,7 +127,7 @@ class Decoder(nn.Module):
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=3,
                       kernel_size=5, stride=1, padding=0),
-            nn.tanh(),
+            nn.Tanh(),
         )
 
     def forward(self, x):
@@ -213,20 +214,21 @@ class CycleGAN(nn.Module):
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
         self.vggface_feats = vggface
+        self.optimizers = []
           
         self.display_epoch = False
         
         if self.isTrain:
-            self.DiscriminatorA = Discriminator()
-            self.DiscriminatorB = Discriminator()
+            self.DiscriminatorA = Discriminator(3)
+            self.DiscriminatorB = Discriminator(3)
             
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
-                                                                self.DecoderB.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))        
+                                                                self.DecoderB.parameters()), lr=config['G_lr'])#betas=(opt.beta1, 0.999)        
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
-                                                                 lr=opt.lr, betas=(opt.beta1, 0.999)) 
+                                                                 lr=config['D_lr'])#, betas=(opt.beta1, 0.999)) 
             self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
                                                     self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
-                                                    self.DiscriminatorB.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
+                                                    self.DiscriminatorB.parameters()), lr=config['C_lr'])#, betas=(opt.beta1, 0.999))
             
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
@@ -341,9 +343,9 @@ class CycleGAN(nn.Module):
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
                 #print(m.weight)
     
-def vggface_for_pl(self, vggface_keras, **loss_weight_config):
+def vggface_for_pl(vggface_keras, **loss_weight_config):
     
-    #vggface_keras.trainable = False
+    vggface_keras.trainable = False
     
     out_size112 = vggface_keras.layers[15].output
     out_size55 = vggface_keras.layers[35].output
@@ -351,6 +353,6 @@ def vggface_for_pl(self, vggface_keras, **loss_weight_config):
     out_size7 = vggface_keras.layers[-3].output
     
     vggface_feats = Model(vggface_keras.input, [out_size112, out_size55, out_size28, out_size7])
-    #vggface_feats.trainable = False
+    vggface_feats.trainable = False
     
     return vggface_feats

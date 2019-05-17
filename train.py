@@ -9,13 +9,18 @@ config = {'isTrain': True,
                                  'adversarial_loss_generator': 1,
                                  'cycle_consistency_loss': 1,
                                 },
+
+          'G_lr': 0.0001,
+          'D_lr': 0.0002,
+          'C_lr': 0.0001,
+          'resize': 256,
           'epochs': 1000,
           'cycleepochs': 800,
           'display_interval': 50,
           'augmantation':{'rotate_degree': 5,
                           'flip': True,
                          },
-          'imagepath':['./faceA/align', './faceB/align'],
+          'imagepath':['./faceA/align/', './faceB/align/'],
           
          }
 
@@ -23,10 +28,10 @@ if __name__ == '__main__':
     
     #build model to calculate perceptual loss 
     vggface = VGGFace(include_top=False, model='resnet50', input_shape=(224, 224, 3))
-    vggface_feats = network.vggface_for_pl(vggface,config['loss_weight_config'])      
+    vggface_feats = network.vggface_for_pl(vggface, loss_weight_config=config['loss_weight_config'])      
         
-    dataset = data_loader.Dataset()
-    model = network.CycleGAN(vggface_feats)
+    dataset = data_loader.Dataset(config)
+    model = network.CycleGAN(vggface_feats, config=config)
     model.train()
     model.cuda()
     model.initialize_weights()
