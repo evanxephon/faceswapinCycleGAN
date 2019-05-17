@@ -35,7 +35,7 @@ def motion_blur(images):
     
     return images
 
-def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE, shift_range=SHIFT_RANGE, random_flip=RANDOM_FLIP)
+def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE, shift_range=SHIFT_RANGE, random_flip=RANDOM_FLIP):
     
     h,w = image.shape[:2]
     

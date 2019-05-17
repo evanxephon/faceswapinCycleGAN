@@ -343,14 +343,14 @@ class CycleGAN(nn.Module):
     
 def vggface_for_pl(self, vggface_keras, **loss_weight_config):
     
-    vggface_keras.trainable = False
+    #vggface_keras.trainable = False
     
-    out_size112 = vggface_model.layers[15].output
-    out_size55 = vggface_model.layers[35].output
-    out_size28 = vggface_model.layers[77].output
-    out_size7 = vggface_model.layers[-3].output
+    out_size112 = vggface_keras.layers[15].output
+    out_size55 = vggface_keras.layers[35].output
+    out_size28 = vggface_keras.layers[77].output
+    out_size7 = vggface_keras.layers[-3].output
     
-    vggface_feats = Model(vggface_model.input, [out_size112, out_size55, out_size28, out_size7])
-    vggface_feats.trainable = False
+    vggface_feats = Model(vggface_keras.input, [out_size112, out_size55, out_size28, out_size7])
+    #vggface_feats.trainable = False
     
     return vggface_feats

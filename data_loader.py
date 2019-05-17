@@ -3,7 +3,7 @@ import torch.utils.data as data
 from PIL import Image
 import torchvision.transforms as transforms
 from data_augmentation import *
-
+import os
 
 class Dataset(data.Dataset):
     def __init__(self, config):
@@ -12,22 +12,21 @@ class Dataset(data.Dataset):
         
         self.Aimages = []
         self.Bimages = []
-        
-        self.transform = get_transform(config['augmentation'])
-        
+
         for imagename in os.listdir(config['imagepath'][0]):
-        
-            image = Image.open(imagename).convert('RGB')
             
-            image = transforms.Resize((config['resize'],config['resize']), method=Image.BICUBIC)(image)
+            #print(imagename) 
+            image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
+            
+            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
             self.Aimages.append(image)
             
         for imagename in os.listdir(config['imagepath'][1]):
         
-            image = Image.open(imagename).convert('RGB')
+            image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
-            image = transforms.Resize((config['resize'],config['resize']), method=Image.BICUBIC)(image)
+            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
             self.Bimages.append(image)
     
@@ -35,7 +34,9 @@ class Dataset(data.Dataset):
     def __len__(self):
         return max(len(self.Aimages), len(self.Bimages))
     
-    def __getitem__(self, index)
+    def __getitem__(self, index):
+
+        self.transform = self.get_transform(self.config['augmentation'])
         
         if index > len(self.Aimages):
             rawAimage = self.Aimages[index % len(self.Aimages)]

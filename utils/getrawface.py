@@ -2,7 +2,7 @@ import cv2
 import os
 import sys
 sys.path.append('..')
-from mtcnn import detect_faces
+from src import detect_faces
 from PIL import Image,ImageOps,ImageDraw
 #import matplotlib.pyplot as plt 
 from umeyama import umeyama
@@ -40,10 +40,10 @@ def getFaceInVideo(videoPath, svPath, fps=10):
                 
                 src_landmarks = get_src_landmarks(bounding_boxes.flatten()[:4], landmarks.flatten())
                 
-                print(f'srclandmark:{src_landmarks}')
+                #print(f'srclandmark:{src_landmarks}')
                 
                 tar_landmarks = get_tar_landmarks(face)
-                print(f'tarlandmark:{tar_landmarks}')
+                #print(f'tarlandmark:{tar_landmarks}')
                 
                 align_face = landmarks_match_mtcnn(BGRtoRGB(np.array(face)), src_landmarks, tar_landmarks)  
 #                 print(BGRtoRGB(np.array(face)).shape)
@@ -130,7 +130,7 @@ def landmarks_match_mtcnn(src_im, src_landmarks, tar_landmarks):
     landmarks coord. for umeyama should be (width, height) or (y, x)
     """
     src_size = src_im.shape
-    print(f'src_size:{src_size}')
+    #print(f'src_size:{src_size}')
     
     src_tmp = [(int(xy[0]), int(xy[1])) for xy in src_landmarks]
     tar_tmp = [(int(xy[0]), int(xy[1])) for xy in tar_landmarks]
@@ -144,4 +144,6 @@ def landmarks_match_mtcnn(src_im, src_landmarks, tar_landmarks):
 
 
 if __name__ == '__main__':
-    getFaceInVideo('../bush.avi','../faceA/',fps=10)
+    os.chdir('..')
+    getFaceInVideo('./bush.avi','./faceA/',fps=10)
+    getFaceInVideo('./putin.avi','./faceB/',fps=10)

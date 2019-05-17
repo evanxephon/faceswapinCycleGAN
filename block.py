@@ -1,18 +1,19 @@
 import torch.nn as nn
+import torch
 
 # Selfattention implementation code borrowed from https://github.com/heykeetae/Self-Attention-GAN/blob/master/sagan_models.py
 class SABlock(nn.Module):
 
     def __init__(self, dim_in, activation):
 
-        super(encoder, self).__init__()
+        super(SABlock, self).__init__()
 
         self.channel_in = dim_in
         self.activation = activation
 
         self.query_conv = nn.Conv2d(
-            in_channels=dim_in, out_channels=dim_in//8, kernel_size=1)
-        self.key_conv = nn.Conv2d(in_channels=dim_in, out_channels == dim_in//8, kernel_size=1)
+            dim_in, dim_in//8, kernel_size=1)
+        self.key_conv = nn.Conv2d(dim_in, dim_in//8, kernel_size=1)
 
         self.value_conv = nn.Conv2d(
             in_channels=dim_in, out_channels=dim_in, kernel_size=1)
@@ -46,7 +47,7 @@ class SABlock(nn.Module):
 
 class ResidualBlock(nn.Module):
 
-    def __init__(nn.Module, dim_in):
+    def __init__(self, dim_in):
 
         super(ResidualBlock, self).__init__()
 
