@@ -2,6 +2,7 @@ import network
 import data_loader
 #import matplotlib.pyplot as plt
 from keras_vggface.vggface import VGGFace
+import os
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -17,6 +18,7 @@ config = {'isTrain': True,
           'epochs': 1000,
           'cycleepochs': 800,
           'display_interval': 50,
+          'save_interval': 100,
           'augmantation':{'rotate_degree': 5,
                           'flip': True,
                          },
@@ -27,6 +29,9 @@ config = {'isTrain': True,
 if __name__ == '__main__':
     
     #build model to calculate perceptual loss 
+    if not os.path.isdir('./weights'):
+        os.mkdir('./weights')
+    
     vggface = VGGFace(include_top=False, model='resnet50', input_shape=(224, 224, 3))
     vggface_feats = network.vggface_for_pl(vggface, loss_weight_config=config['loss_weight_config'])      
         
@@ -39,6 +44,9 @@ if __name__ == '__main__':
     for epoch in range(config['epochs']):
         if epoch // config['display_interval'] == 0:
             model.displayepoch = True
+            
+        if epoch // config['save_interval'] == 0:
+            model.save_network(epoch)
                     
         if epoch > config['cycleepochs']:
             model.cycle_consistency_loss = True

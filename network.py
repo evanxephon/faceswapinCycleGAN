@@ -210,11 +210,13 @@ class CycleGAN(nn.Module):
         self.DecoderA = Decoder()
         self.DecoderB = Decoder()
         
+        self.model_names = ['Encoder', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
         self.vggface_feats = vggface
         self.optimizers = []
+        self.save_dir = config['save_dir']
           
         self.display_epoch = False
         
@@ -342,6 +344,39 @@ class CycleGAN(nn.Module):
                 # m.weight.data.fill_(1.0)
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
                 #print(m.weight)
+                
+    def save_networks(self, epoch):
+        
+        for name in self.model_names:
+            if isinstance(name, str):
+                save_filename = f'{epoch}_net_{name}.pth'
+                save_path = os.path.join(self.save_dir, save_filename)
+                net = getattr(self, name)
+
+                if torch.cuda.is_available():
+                    torch.save(net.module.cpu().state_dict(), save_path)
+                else:
+                    torch.save(net.cpu().state_dict(), save_path)
+                    
+    def load_networks(self, epoch):
+        for name in self.model_names:
+            if isinstance(name, str):
+                
+                load_filename = '%s_net_%s.pth' % (epoch, name)
+                load_path = os.path.join(self.save_dir, load_filename)
+                
+                net = getattr(self, name)
+                
+                if isinstance(net, torch.nn.DataParallel):
+                    net = net.module
+                    
+                print('loading the model from %s' % save_dir)
+                state_dict = torch.load(load_path)
+                
+                if hasattr(state_dict, '_metadata'):
+                    del state_dict._metadata
+                    
+                net.load_state_dict(state_dict)
     
 def vggface_for_pl(vggface_keras, **loss_weight_config):
     
