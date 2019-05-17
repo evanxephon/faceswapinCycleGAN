@@ -82,7 +82,7 @@ class Encoder(nn.Module):
         return x
 
 
-class Decoder(nn.module):
+class Decoder(nn.Module):
 
     def __init__(self, dim_in=512):
         super(Decoder, self).__init__()
@@ -241,13 +241,9 @@ class CycleGAN(nn.Module):
         
     def forward(self):
         
-        
-	if self.display_epoch == True:
-	    self.displayBmask = self.DecoderA(self.Encoder(self.realB))[:,:,:,1]
-            self.displayAoutput = self.DecoderA(self.Encoder(self.realA))[:,:,:,1:]
-
-            self.displayBmask = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1]
-            self.displayBoutput = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1:]
+        if self.display_epoch == True:
+            self.displayAoutput, self.displayBmask = self.DecoderA(self.Encoder(self.realB))
+            self.displayBoutput, self.displayBmask = self.DecoderB(self.Encoder(self.warpedB))
 
             self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
             self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
@@ -257,16 +253,13 @@ class CycleGAN(nn.Module):
             self.warpedB = self.realA
             
         # mask(Alpha) output and BGR output
-        self.maskA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1]
-        self.outputA = self.DecoderA(self.Encoder(self.warpedA))[:,:,:,1:]
+        self.outputA, self.maskA = self.DecoderA(self.Encoder(self.warpedA))
         
-        self.maskB = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1]
-        self.outputB = self.DecoderB(self.Encoder(self.warpedB))[:,:,:,1:]
+        self.outputB, self.maskB = self.DecoderB(self.Encoder(self.warpedB))
         
         # combine mask and output to get fake result
         self.fakeA = self.maskA * self.outputA + (1 - self.maskA) * self.warpedA
-        self.fakeB = self.maskB * self.outputB + (1 - self.maskB) * self.warpedB
-        
+        self.fakeB = self.maskB * self.outputB + (1 - self.maskB) * self.warpedB  
         
         if self.isTrain:
             self.fakeApred = self.Discriminator(self.fakeA)
@@ -280,45 +273,43 @@ class CycleGAN(nn.Module):
             self.cycleA = self.DecoderA(self.Encoder(self.outputB))
             self.cycleB = self.DecoderB(self.Encoder(self.outputA))
             
-            
-   
     def backward_D_A(self):
         
-        loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config)
+        loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, 'L2', loss_weight_config)
         loss_D_A.backward()
         
     def backward_D_B(self):
         
-        loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config)
+        loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, 'L2', loss_weight_config)
         loss_D_B.backward()
       
     def backward_G_A(self):
         
-        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weight_config)
-        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
-        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config)
+        loss_G_A = loss.adversarial_loss_generator(self.fakeA, 'L2', loss_weight_config)
+        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, 'L2', loss_weight_config)
+        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, 'L2', loss_weight_config)
         
         loss_G_A.backward()
         
     def backward_G_B(self):
         
-        loss_G_A = loss.adversarial_loss_generator(self.fakeA, method='L2', loss_weigth_config)
-        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config)
-        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config)
+        loss_G_A = loss.adversarial_loss_generator(self.fakeA, 'L2', loss_weigth_config)
+        loss_G_A += loss.reconstruction_loss(self.fakeA, self.realA, 'L2', loss_weight_config)
+        loss_G_A += loss.perceptual_loos(self.realA, self.fakeA, self.vggface_feats, 'L2', loss_weight_config)
         
         loss_G_A.backward()
         
     def backward_Cycle_A(self):
         
-        loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config)
+        loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, 'L2', loss_weight_config)
         loss_Cycle_A.backward()
         
     def backward_Cycle_B(self):
         
-        loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config)
+        loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, 'L2', loss_weight_config)
         loss_Cycle_B.backward()
         
-    def optimize_parameter(self);
+    def optimize_parameter(self):
     
         self.forward()
         
@@ -352,7 +343,7 @@ class CycleGAN(nn.Module):
     
 def vggface_for_pl(self, vggface_keras, **loss_weight_config):
     
-    vggface_keras,trainable = False
+    vggface_keras.trainable = False
     
     out_size112 = vggface_model.layers[15].output
     out_size55 = vggface_model.layers[35].output

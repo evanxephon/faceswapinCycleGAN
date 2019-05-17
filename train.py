@@ -1,6 +1,6 @@
 import network
 import data_loader
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from keras_vggface.vggface import VGGFace
 
 config = {'isTrain': True,
@@ -43,10 +43,10 @@ if __name__ == '__main__':
             model.set_input(batchdata)
             model.optimizer_parameters()
                     
-        if epoch // config['display_interval'] == 0:
+        '''if epoch // config['display_interval'] == 0:
             for batch in range(len(model.displayA)):
                 plt.imshow(model.displayA[batch])
-                plt.show()
+                plt.show()'''
                     
         print(f'loss')
 
