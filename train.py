@@ -18,6 +18,7 @@ config = {'isTrain': True,
           'epochs': 1000,
           'cycleepochs': 800,
           'display_interval': 50,
+          'save_dir': './weights/'
           'save_interval': 100,
           'augmantation':{'rotate_degree': 5,
                           'flip': True,
