@@ -3,6 +3,10 @@ import data_loader
 #import matplotlib.pyplot as plt
 from keras_vggface.vggface import VGGFace
 import os
+from IPython import display
+import cv2
+import numpy as np
+from PIL import image
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -57,10 +61,34 @@ if __name__ == '__main__':
             model.set_input(batchdata)
             model.optimizer_parameters()
                     
-        '''if epoch // config['display_interval'] == 0:
-            for batch in range(len(model.displayA)):
-                plt.imshow(model.displayA[batch])
-                plt.show()'''
+        if epoch // config['display_interval'] == 0:
+            realA = np.array()
+            displayA = np.array()
+            
+            realBpic = np.array()
+            displayBpic = np.array()
+            
+            for batch in model.realA:
+                realApic = realApic.concatenate(np.squeeze(batch), axis=1)
+            
+            for batch in model.realB:
+                realBpic = realBpic.concatenate(np.squeeze(batch), axis=1)
+                
+            for batch in model.displayA:
+                displayApic = displayApic.concatenate(np.squeeze(batch), axis=1)
+                
+            for batch in model.displayB:
+                displayBpic = displayBpic.concatenate(np.squeeze(batch), axis=1)
+                
+            realApic = cv2.cvtColor(realApic, cv2.COLOR_BGR2RGB)    
+            displayApic = cv2.cvtColor(displayApic, cv2.COLOR_BGR2RGB) 
+            realBpic = cv2.cvtColor(realBpic, cv2.COLOR_BGR2RGB) 
+            displayBpic = cv2.cvtColor(displayBpic, cv2.COLOR_BGR2RGB) 
+            
+            display(Image.fromarray(realApic))
+            display(Image.fromarray(displayApic))
+            display(Image.fromarray(realBpic))
+            display(Image.fromarray(displayBpic))
                     
         print(f'loss')
 
