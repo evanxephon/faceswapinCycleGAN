@@ -13,18 +13,22 @@ class Encoder(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=64,
                       kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
         )
+        
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=128,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
         )
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=256,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(256),
             nn.ReLU(),
         )
 
@@ -33,6 +37,7 @@ class Encoder(nn.Module):
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=512,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(512),
             nn.ReLU(),
         )
 
@@ -41,16 +46,22 @@ class Encoder(nn.Module):
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=512, out_channels=1024,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(1024),
             nn.ReLU(),
         )
 
         self.fc1 = nn.Linear(1024*4*4, 1024)
+        
+        self.bn1 = nn.BatchNorm1d(1024)
 
         self.fc2 = nn.Linear(1024, 1024*4*4)
+        
+        self.bn2 = nn.BatchNorm1d(1024*4*4)
 
         self.conv6 = nn.Sequential(
             nn.Conv2d(in_channels=1024, out_channels=4096,
                       kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(4096),
             nn.ReLU(),
         )
 
@@ -69,12 +80,18 @@ class Encoder(nn.Module):
         x = self.conv4(x)
 
         x, _ = self.sablock2(x)
+        
+        x = x.view([-1,1024*4*4])
 
         x = fc1(x)
+        
+        x = bn1(x)
 
         x = fc2(x)
+        
+        x = bn2(x)
 
-        x = x.view(-1, 1024, 4, 4)
+        x = x.view([-1, 1024, 4, 4])
 
         x = self.conv6(x)
 
@@ -91,6 +108,7 @@ class Decoder(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=dim_in, out_channels=256 *
                       2*2, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(1024),
             nn.LeakyReLU(),
         )
 
@@ -99,6 +117,7 @@ class Decoder(nn.Module):
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=128*2 *
                       2, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(512),
             nn.LeakyReLU(),
         )
 
@@ -109,12 +128,15 @@ class Decoder(nn.Module):
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=64*2*2,
                       kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(),
         )
 
         self.upscaleblock3 = nn.PixelShuffle(2)
 
         self.resblock = ResidualBlock(dim_in=64)
+        
+        self.bn = nn.BatchNorm2d(64)
 
         self.sablock1 = SABlock(dim_in=64, activation=None)
 
@@ -144,6 +166,8 @@ class Decoder(nn.Module):
         x = self.upscaleblock3(x)
 
         x = self.resblock(x)
+        
+        x = self.bn(x)
 
         x, _ = self.sablock2(x)
 
@@ -162,12 +186,14 @@ class Discriminator(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(64),
             nn.LeakyReLU(),
         )
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=128,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(),
         )
 
@@ -176,6 +202,7 @@ class Discriminator(nn.Module):
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=256,
                       kernel_size=3, stride=2, padding=0),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(),
         )
 
@@ -184,6 +211,7 @@ class Discriminator(nn.Module):
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=1,
                       kernel_size=5, stride=1, padding=0),
+            nn.BatchNorm2d(1),
         )
 
     def forward(self, x):

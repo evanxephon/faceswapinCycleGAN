@@ -39,7 +39,7 @@ class SABlock(nn.Module):
         attention = self.softmax(energy)
         proj_value = self.value_conv(x).view(batchsize, width*height, -1)
 
-        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = torch.bmm(attention, proj_value)
         out = out.view(batchsize, height, width, -1)
 
         return out, attention
@@ -54,11 +54,14 @@ class ResidualBlock(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
         )
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
         )
 
