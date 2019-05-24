@@ -57,7 +57,7 @@ class Dataset(data.Dataset):
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
-    def get_transform(config):
+    def get_transform(self, config):
         
         if 'rotate_degree' in config.keys():
             transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
