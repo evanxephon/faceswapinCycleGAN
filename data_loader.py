@@ -21,7 +21,7 @@ class Dataset(data.Dataset):
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
-            image = transforms.ToTensor(image)
+            image = transforms.functional.to_tensor(image)
             
             self.Aimages.append(image)
             
@@ -31,7 +31,7 @@ class Dataset(data.Dataset):
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
-            image = transforms.ToTensor(image)
+            image = transforms.functional.to_tensor(image)
             
             self.Bimages.append(image)
     
