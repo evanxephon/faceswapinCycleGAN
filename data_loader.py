@@ -12,7 +12,8 @@ class Dataset(data.Dataset):
         
         self.Aimages = []
         self.Bimages = []
-
+        self.transformer_list = []
+        
         for imagename in os.listdir(config['imagepath'][0]):
             
             #print(imagename) 
