@@ -53,8 +53,8 @@ class Dataset(data.Dataset):
         randomAimage = self.transform(rawAimage)
         randomBimage = self.transform(rawBimage)
 
-        warpedA, realA = warp_and_aug(image, self.config)
-        warpedB, realB = warp_and_aug(image, self.config)
+        warpedA, realA = warp_and_aug(randomAimage, self.config)
+        warpedB, realB = warp_and_aug(randomBimage, self.config)
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
