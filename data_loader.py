@@ -61,10 +61,10 @@ class Dataset(data.Dataset):
     def get_transform(self, config):
         
         if 'rotate_degree' in config.keys():
-            transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
+            self.transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
             
         if 'flip' in config.keys():
-            transformer_list.append(transforms.RandomHorizontalFlip())
+            self.transformer_list.append(transforms.RandomHorizontalFlip())
             
-        return transforms.Compose(transformer_list)
+        return transforms.Compose(self.transformer_list)
         
