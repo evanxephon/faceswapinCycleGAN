@@ -19,8 +19,8 @@ def get_motion_blur_kernal(size=7):
     kernel = ndimage.interpolation.rotate(kernel, angle, reshape=False)
     kernel = np.clip(kernel, 0, 1)
     
-    nomalize_factor = 1 / np.sum(kernel)
-    kernel = kernel * noramlize_factor
+    normalize_factor = 1 / np.sum(kernel)
+    kernel = kernel * normalize_factor
     
     return kernel
 
