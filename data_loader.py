@@ -1,6 +1,7 @@
 import numpy as np
 import torch.utils.data as data
 from PIL import Image
+import cv2
 import torchvision.transforms as transforms
 from data_augmentation import *
 import os
@@ -17,7 +18,9 @@ class Dataset(data.Dataset):
         for imagename in os.listdir(config['imagepath'][0]):
             
             #print(imagename) 
-            image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
+            image =cv2.imread(os.path.join(config['imagepath'][0] + imagename))
+            
+            image = image[...,::-1]
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
             
@@ -25,7 +28,9 @@ class Dataset(data.Dataset):
             
         for imagename in os.listdir(config['imagepath'][1]):
         
-            image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
+            image = cv2.imread(os.path.join(config['imagepath'][1] + imagename))
+            
+            image = image[...,::-1]
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
@@ -56,6 +61,11 @@ class Dataset(data.Dataset):
         warpedA, realA = warp_and_aug(randomAimage, self.config)
         warpedB, realB = warp_and_aug(randomBimage, self.config)
         
+        warpedA = transforms.functional.to_tensor(warpedA)
+        realA = transforms.functional.to_tensor(realA)
+        warpedB = transforms.functional.to_tensor(warpedB)
+        realB = transforms.functional.to_tensor(realB)
+        
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
     def get_transform(self, config):
@@ -65,8 +75,6 @@ class Dataset(data.Dataset):
             
         if 'flip' in config.keys():
             self.transformer_list.append(transforms.RandomHorizontalFlip())
-            
-        self.transformer_list.append(transforms.ToTensor())
             
         return transforms.Compose(self.transformer_list)
         
