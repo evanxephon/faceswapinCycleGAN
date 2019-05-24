@@ -21,6 +21,8 @@ class Dataset(data.Dataset):
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
+            image = transforms.ToTensor(image)
+            
             self.Aimages.append(image)
             
         for imagename in os.listdir(config['imagepath'][1]):
@@ -28,6 +30,8 @@ class Dataset(data.Dataset):
             image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
+            
+            image = transforms.ToTensor(image)
             
             self.Bimages.append(image)
     
