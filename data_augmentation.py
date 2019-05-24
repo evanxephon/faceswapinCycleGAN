@@ -37,7 +37,7 @@ def motion_blur(images):
 
 def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE, shift_range=SHIFT_RANGE, random_flip=RANDOM_FLIP):
     
-    h,w = image.size[...,::-1]
+    w,h = image.size
     
     #rotation = np.random.uniform(-rotation_range, rotation_range)
     scale = np.random.uniform(1 - zoom_range, 1 + zoom_range)
@@ -57,7 +57,7 @@ def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE
 
 def random_warp_rev(image, res=64, roi=0.6):
     
-    assert image.size == (256,256)
+    assert image.shape == (256,256,3)
     resize_scale = res//64
     
     assert resize_scale >= 1
@@ -73,7 +73,7 @@ def random_warp_rev(image, res=64, roi=0.6):
     warp_range = np.linspace(128 - rand_coverage, 128 + rand_coverage, 5)
     
     mapx = np.broadcast_to(warp_range, (5,5))
-    mapy = maxp.T
+    mapy = mapx.T
     
     mapx = mapx + np.random.normal(size=(5,5), scale=rand_scale)
     mapy = mapy + np.random.normal(size=(5,5), scale=rand_scale)
