@@ -18,9 +18,7 @@ class Dataset(data.Dataset):
         for imagename in os.listdir(config['imagepath'][0]):
             
             #print(imagename) 
-            image =cv2.imread(os.path.join(config['imagepath'][0] + imagename))
-            
-            image = image[...,::-1]
+            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')         
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
             
@@ -28,9 +26,7 @@ class Dataset(data.Dataset):
             
         for imagename in os.listdir(config['imagepath'][1]):
         
-            image = cv2.imread(os.path.join(config['imagepath'][1] + imagename))
-            
-            image = image[...,::-1]
+            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
