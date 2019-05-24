@@ -79,7 +79,7 @@ def random_warp_rev(image, res=64, roi=0.6):
     mapy = mapy + np.random.normal(size=(5,5), scale=rand_scale)
     
     interp_mapx = cv2.resize(mapx, (interp_param, interp_param))[interp_slice, interp_slice].astype('float32')
-    interp_maxy = cv2.resize(mapy, (interp_param, interp_param))[interp_slice, interp_slice].astype('float32')
+    interp_mapy = cv2.resize(mapy, (interp_param, interp_param))[interp_slice, interp_slice].astype('float32')
     
     warped_image = cv2.remap(image, interp_mapx, interp_mapy, cv2.INTER_LINEAR)
     
