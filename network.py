@@ -400,7 +400,7 @@ class CycleGAN(nn.Module):
                 net = getattr(self, name)
 
                 if torch.cuda.is_available():
-                    torch.save(net.module.cpu().state_dict(), save_path)
+                    torch.save(net.cpu().state_dict(), save_path)
                 else:
                     torch.save(net.cpu().state_dict(), save_path)
                     
