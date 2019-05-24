@@ -6,7 +6,7 @@ import os
 from IPython import display
 import cv2
 import numpy as np
-from PIL import image
+from PIL import Image
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -22,7 +22,7 @@ config = {'isTrain': True,
           'epochs': 1000,
           'cycleepochs': 800,
           'display_interval': 50,
-          'save_dir': './weights/'
+          'save_dir': './weights/',
           'save_interval': 100,
           'augmantation':{'rotate_degree': 5,
                           'flip': True,
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             model.displayepoch = True
             
         if epoch // config['save_interval'] == 0:
-            model.save_network(epoch)
+            model.save_networks(epoch)
                     
         if epoch > config['cycleepochs']:
             model.cycle_consistency_loss = True
