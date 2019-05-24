@@ -30,7 +30,7 @@ def motion_blur(images):
     
     kernel_motion_blur = get_motion_blur_kernal(blur_size)
     
-    for i in range(len(image)):
+    for i in range(len(images)):
         images[i] = cv2.filter2D(images[i], -1, kernel_motion_blur).astype(np.float64)
     
     return images
