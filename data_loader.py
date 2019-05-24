@@ -19,9 +19,7 @@ class Dataset(data.Dataset):
             #print(imagename) 
             image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
             
-            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
-            
-            image = transforms.functional.to_tensor(image)
+            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
             
             self.Aimages.append(image)
             
@@ -30,8 +28,6 @@ class Dataset(data.Dataset):
             image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
-            
-            image = transforms.functional.to_tensor(image)
             
             self.Bimages.append(image)
     
@@ -69,6 +65,8 @@ class Dataset(data.Dataset):
             
         if 'flip' in config.keys():
             self.transformer_list.append(transforms.RandomHorizontalFlip())
+            
+        self.transformer_list.append(transforms.ToTensor())
             
         return transforms.Compose(self.transformer_list)
         
