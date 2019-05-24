@@ -3,6 +3,7 @@ from block import *
 import loss
 from keras.models import Model
 import itertools
+import os
 
 class Encoder(nn.Module):
 
