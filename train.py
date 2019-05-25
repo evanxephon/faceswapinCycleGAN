@@ -1,5 +1,5 @@
 import network
-import data_loader
+import dataset
 #import matplotlib.pyplot as plt
 from keras_vggface.vggface import VGGFace
 import os
@@ -7,6 +7,8 @@ from IPython import display
 import cv2
 import numpy as np
 from PIL import Image
+import torch.utils.data.DataLoader
+
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -18,6 +20,7 @@ config = {'isTrain': True,
           'G_lr': 0.0001,
           'D_lr': 0.0002,
           'C_lr': 0.0001,
+          'batchsize': 4,
           'resize': 256,
           'epochs': 1000,
           'cycleepochs': 800,
@@ -40,7 +43,8 @@ if __name__ == '__main__':
     vggface = VGGFace(include_top=False, model='resnet50', input_shape=(224, 224, 3))
     vggface_feats = network.vggface_for_pl(vggface, loss_weight_config=config['loss_weight_config'])      
         
-    dataset = data_loader.Dataset(config)
+    data = dataset.Dataset(config)
+    dataloader = DataLoader(data, config['batchsize'])
     model = network.CycleGAN(vggface_feats, config=config)
     model.train()
     model.cuda()
