@@ -24,23 +24,23 @@ class SABlock(nn.Module):
     def forward(self, x):
         """
             inputs :
-                x : input feature maps( B * H * W * C)
+                x : input feature maps( B * C * H * W)
             returns :
                 out : self attention value + input feature 
                 attention: B X N X N (N is Width*Height)
         """
         batchsize, height, width, channel = x.size()
 
-        proj_query = self.query_conv(x).view(batchsize, width*height, -1)
+        proj_query = self.query_conv(x).view(batchsize, -1, width*height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(
-            batchsize, width*height, -1).permute(0, 2, 1)
+            batchsize, -1, width*height)
 
         energy = torch.bmm(proj_query, proj_key)
         attention = self.softmax(energy)
-        proj_value = self.value_conv(x).view(batchsize, width*height, -1)
+        proj_value = self.value_conv(x).view(batchsize, -1, width*height).permute(0, 2, 1)
 
         out = torch.bmm(attention, proj_value)
-        out = out.view(batchsize, height, width, -1)
+        out = out.view(batchsize, -1, height, width)
 
         return out, attention
 
