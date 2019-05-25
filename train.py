@@ -60,7 +60,7 @@ if __name__ == '__main__':
         if epoch > config['cycleepochs']:
             model.cycle_consistency_loss = True
                     
-        for batchdata in dataset:
+        for batchdata in dataloader:
             
             model.set_input(batchdata)
             model.optimizer_parameters()
