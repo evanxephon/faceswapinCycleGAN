@@ -46,7 +46,7 @@ class Encoder(nn.Module):
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=512, out_channels=1024,
-                      kernel_size=3, stride=2, padding=0),
+                      kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(1024),
             nn.ReLU(),
         )
