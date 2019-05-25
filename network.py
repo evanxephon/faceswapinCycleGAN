@@ -76,7 +76,7 @@ class Encoder(nn.Module):
 
         x = self.conv3(x)
 
-        x, _ = sablock1(x)
+        x, _ = self.sablock1(x)
 
         x = self.conv4(x)
 
@@ -84,19 +84,19 @@ class Encoder(nn.Module):
         
         x = x.view([-1,1024*4*4])
 
-        x = fc1(x)
+        x = self.fc1(x)
         
-        x = bn1(x)
+        x = self.bn1(x)
 
-        x = fc2(x)
+        x = self.fc2(x)
         
-        x = bn2(x)
+        x = self.bn2(x)
 
         x = x.view([-1, 1024, 4, 4])
 
         x = self.conv6(x)
 
-        x = upscaleblock(x)
+        x = self.upscaleblock(x)
 
         return x
 
