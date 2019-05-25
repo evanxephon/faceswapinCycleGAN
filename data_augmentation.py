@@ -39,7 +39,7 @@ def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE
     
     w,h = image.size
     
-    #rotation = np.random.uniform(-rotation_range, rotation_range)
+    rotation = np.random.uniform(-rotation_range, rotation_range)
     scale = np.random.uniform(1 - zoom_range, 1 + zoom_range)
     
     xshift = np.random.uniform(-shift_range, shift_range) * w
