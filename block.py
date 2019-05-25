@@ -29,7 +29,7 @@ class SABlock(nn.Module):
                 out : self attention value + input feature 
                 attention: B X N X N (N is Width*Height)
         """
-        batchsize, height, width, channel = x.size()
+        batchsize, channel, height, width = x.size()
 
         proj_query = self.query_conv(x).view(batchsize, -1, width*height).permute(0, 2, 1)
         proj_key = self.key_conv(x).view(
