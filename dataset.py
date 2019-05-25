@@ -45,7 +45,7 @@ class Dataset(data.Dataset):
             rawBimage = self.Bimages[index]
             
         elif index > len(self.Bimages):
-            rawBimage = self.Bimages[index % len(self.Aimages)]
+            rawBimage = self.Bimages[index % len(self.Bimages)]
             rawAimage = self.Aimages[index]            
         else:
             rawAimage = self.Aimages[index]  
