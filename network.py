@@ -235,11 +235,11 @@ class CycleGAN(nn.Module):
         
         super(CycleGAN, self).__init__()
         
-        self.Encoder = Encoder()
+        self.EncoderAB = Encoder()
         self.DecoderA = Decoder()
         self.DecoderB = Decoder()
         
-        self.model_names = ['Encoder', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
+        self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
@@ -254,11 +254,11 @@ class CycleGAN(nn.Module):
             self.DiscriminatorA = Discriminator(3)
             self.DiscriminatorB = Discriminator(3)
             
-            self.optimizer_G = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
+            self.optimizer_G = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                                 self.DecoderB.parameters()), lr=config['G_lr'])#betas=(opt.beta1, 0.999)        
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
                                                                  lr=config['D_lr'])#, betas=(opt.beta1, 0.999)) 
-            self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.Encoder.parameters(), self.DecoderA.parameters(),
+            self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                     self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
                                                     self.DiscriminatorB.parameters()), lr=config['C_lr'])#, betas=(opt.beta1, 0.999))
             
@@ -276,8 +276,8 @@ class CycleGAN(nn.Module):
     def forward(self):
         
         if self.display_epoch == True:
-            self.displayAoutput, self.displayBmask = self.DecoderA(self.Encoder(self.realB))
-            self.displayBoutput, self.displayBmask = self.DecoderB(self.Encoder(self.warpedB))
+            self.displayAoutput, self.displayBmask = self.DecoderA(self.EncoderAB(self.realB))
+            self.displayBoutput, self.displayBmask = self.DecoderB(self.EncoderAB(self.warpedB))
 
             self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
             self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
@@ -287,9 +287,9 @@ class CycleGAN(nn.Module):
             self.warpedB = self.realA
             
         # mask(Alpha) output and BGR output
-        self.outputA, self.maskA = self.DecoderA(self.Encoder(self.warpedA))
+        self.outputA, self.maskA = self.DecoderA(self.EncoderAB(self.warpedA))
         
-        self.outputB, self.maskB = self.DecoderB(self.Encoder(self.warpedB))
+        self.outputB, self.maskB = self.DecoderB(self.EncoderAB(self.warpedB))
         
         # combine mask and output to get fake result
         self.fakeA = self.maskA * self.outputA + (1 - self.maskA) * self.warpedA
@@ -304,8 +304,8 @@ class CycleGAN(nn.Module):
         
         if self.cycle_consistency_loss:
             
-            self.cycleA = self.DecoderA(self.Encoder(self.outputB))
-            self.cycleB = self.DecoderB(self.Encoder(self.outputA))
+            self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))
+            self.cycleB = self.DecoderB(self.EncoderAB(self.outputA))
             
     def backward_D_A(self):
         
@@ -363,7 +363,7 @@ class CycleGAN(nn.Module):
     
         self.forward()
         
-        self.set_requires_grad([self.Encoder, self.DecoderA, self.DecoderB], True)
+        self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
         self.optimizer_D.zero_grad()
         self.backward_D_A()
         self.backward_D_B()
