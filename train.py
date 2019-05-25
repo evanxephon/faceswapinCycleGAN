@@ -44,7 +44,7 @@ if __name__ == '__main__':
     vggface_feats = network.vggface_for_pl(vggface, loss_weight_config=config['loss_weight_config'])      
         
     data = dataset.Dataset(config)
-    dataloader = DataLoader(data, config['batchsize'])
+    dataloader = DataLoader(data, config['batchsize'], drop_last=True)
     model = network.CycleGAN(vggface_feats, config=config)
     model.train()
     model.cuda()
