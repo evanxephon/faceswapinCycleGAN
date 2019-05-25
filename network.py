@@ -266,12 +266,12 @@ class CycleGAN(nn.Module):
             self.optimizers.append(self.optimizer_D)
             self.optimizers.append(self.optimizer_Cycle)
         
-    def set_input(self, input):
+    def set_input(self, inputdata):
         
-        self.warpedA = input['warpedA']
-        self.warpedB = input['warpedB']
-        self.realA = input['realA']
-        self.realB = input['realB']
+        self.warpedA = inputdata['warpedA']
+        self.warpedB = inputdata['warpedB']
+        self.realA = inputdata['realA']
+        self.realB = inputdata['realB']
         
     def forward(self):
         
