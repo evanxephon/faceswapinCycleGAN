@@ -7,7 +7,7 @@ from IPython import display
 import cv2
 import numpy as np
 from PIL import Image
-import torch.utils.data.DataLoader
+from torch.utils.data import DataLoader
 
 
 config = {'isTrain': True,
