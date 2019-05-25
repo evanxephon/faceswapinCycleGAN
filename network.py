@@ -60,9 +60,9 @@ class Encoder(nn.Module):
         self.bn2 = nn.BatchNorm1d(1024*4*4)
 
         self.conv6 = nn.Sequential(
-            nn.Conv2d(in_channels=1024, out_channels=4096,
-                      kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(4096),
+            nn.Conv2d(in_channels=1024, out_channels=2048,
+                      kernel_size=1, stride=1, padding=1),
+            nn.BatchNorm2d(2048),
             nn.ReLU(),
         )
 
