@@ -143,7 +143,7 @@ class Decoder(nn.Module):
         
         self.bn = nn.BatchNorm2d(64)
 
-        self.sablock1 = SABlock(dim_in=64, activation=None)
+        self.sablock2 = SABlock(dim_in=64, activation=None)
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1,
@@ -222,6 +222,8 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, x):
+        
+        assert x.shape[1:] == (3,64,64), x.shape
 
         x = self.conv1(x)
         x = self.conv2(x)
