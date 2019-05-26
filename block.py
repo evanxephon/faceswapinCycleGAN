@@ -69,7 +69,7 @@ class ResidualBlock(nn.Module):
 
         identity = x
 
-        output = self.conv1(output)
+        output = self.conv1(x)
         output = self.conv2(output)
 
         return nn.ReLU(output + identity)
