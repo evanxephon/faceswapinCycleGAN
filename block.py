@@ -67,10 +67,10 @@ class ResidualBlock(nn.Module):
 
     def forward(self, x):
 
-        identity = x.copy()
+        identity = x
 
-        x = self.conv1(x)
-        x = self.conv2(x)
+        output = self.conv1(output)
+        output = self.conv2(output)
 
-        return nn.ReLU(x + identity)
+        return nn.ReLU(output + identity)
 
