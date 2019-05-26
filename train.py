@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from torch.utils.data import DataLoader
-
+import torch
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
