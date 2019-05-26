@@ -63,7 +63,7 @@ if __name__ == '__main__':
         for batchdata in dataloader:
             
             model.set_input(batchdata)
-            model.optimizer_parameters()
+            model.optimize_parameter()
                     
         if epoch // config['display_interval'] == 0:
             realA = np.array()
