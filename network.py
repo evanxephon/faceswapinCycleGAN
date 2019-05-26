@@ -61,7 +61,7 @@ class Encoder(nn.Module):
 
         self.conv6 = nn.Sequential(
             nn.Conv2d(in_channels=1024, out_channels=2048,
-                      kernel_size=1, stride=1, padding=1),
+                      kernel_size=1, stride=1, padding=0),
             nn.BatchNorm2d(2048),
             nn.ReLU(),
         )
@@ -99,6 +99,8 @@ class Encoder(nn.Module):
         x = self.conv6(x)
 
         x = self.upscaleblock(x)
+        
+        assert x.shape[1:] == (512,8,8), x.shape
 
         return x
 
@@ -156,6 +158,8 @@ class Decoder(nn.Module):
         )
 
     def forward(self, x):
+        
+        assert x.shape[1:] == (512,8,8), x.shape 
 
         x = self.conv1(x)
         x = self.upscaleblock1(x)
