@@ -34,6 +34,7 @@ config = {'isTrain': True,
           
          }
 
+torch.set_default_tensor_type(torch.DoubleTensor)
 if __name__ == '__main__':
     
     #build model to calculate perceptual loss 
@@ -48,6 +49,7 @@ if __name__ == '__main__':
     model = network.CycleGAN(vggface_feats, config=config)
     model.train()
     model.cuda()
+    model.double()
     model.initialize_weights()
 
     for epoch in range(config['epochs']):
