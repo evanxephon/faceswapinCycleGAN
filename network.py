@@ -82,7 +82,7 @@ class Encoder(nn.Module):
 
         x, _ = self.sablock2(x)
         
-        x = self.conv4(x)
+        x = self.conv5(x)
         
         x = x.view([-1,1024*4*4])
 
