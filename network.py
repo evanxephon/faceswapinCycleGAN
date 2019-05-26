@@ -1,5 +1,5 @@
 import torch.nn as nn
-from block import *
+import block
 import loss
 from keras.models import Model
 import itertools
@@ -33,7 +33,7 @@ class Encoder(nn.Module):
             nn.ReLU(),
         )
 
-        self.sablock1 = SABlock(dim_in=256, activation='relu')
+        self.sablock1 = block.SABlock(dim_in=256, activation='relu')
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=512,
@@ -42,7 +42,7 @@ class Encoder(nn.Module):
             nn.ReLU(),
         )
 
-        self.sablock2 = SABlock(dim_in=512, activation='relu')
+        self.sablock2 = block.SABlock(dim_in=512, activation='relu')
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=512, out_channels=1024,
@@ -128,7 +128,7 @@ class Decoder(nn.Module):
 
         self.upscaleblock2 = nn.PixelShuffle(2)
 
-        self.sablock1 = SABlock(dim_in=128, activation=None)
+        self.sablock1 = block.SABlock(dim_in=128, activation=None)
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=64*2*2,
@@ -139,11 +139,11 @@ class Decoder(nn.Module):
 
         self.upscaleblock3 = nn.PixelShuffle(2)
 
-        self.resblock = ResidualBlock(dim_in=64)
+        self.resblock = block.ResidualBlock(dim_in=64)
         
         self.bn = nn.BatchNorm2d(64)
 
-        self.sablock2 = SABlock(dim_in=64, activation=None)
+        self.sablock2 = block.SABlock(dim_in=64, activation=None)
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1,
@@ -204,7 +204,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(),
         )
 
-        self.sablock1 = SABlock(128, activation=None)
+        self.sablock1 = block.SABlock(128, activation=None)
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=256,
@@ -213,7 +213,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(),
         )
 
-        self.sablock2 = SABlock(256, activation=None)
+        self.sablock2 = block.SABlock(256, activation=None)
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=1,
