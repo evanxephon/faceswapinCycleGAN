@@ -48,7 +48,7 @@ def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE
     mat = cv2.getRotationMatrix2D((w//2, h//2), rotation, scale)
     mat[:, 2] += (xshift, yshift)
     
-    result = cv2.warpAffine(image, mat, (w,h), borderMode=cv2.BORDER_REPLICATE)
+    result = cv2.warpAffine(np.array(image)[:,:,:3], mat, (w,h), borderMode=cv2.BORDER_REPLICATE)
     
     #if np.random.random() < random_flip:
     #    result = result[:,::-1,:]
