@@ -324,13 +324,13 @@ class CycleGAN(nn.Module):
         
         loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_D_A'] = loss_D_A.detach()
-        loss_D_A.backward()
+        loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
         loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_D_B'] = loss_D_A.detach()
-        loss_D_B.backward()
+        self.loss_value['loss_D_B'] = loss_D_B.detach()
+        loss_D_B.backward(retain_graph=True)
       
     def backward_G_A(self):
         
@@ -344,7 +344,7 @@ class CycleGAN(nn.Module):
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
         loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
-        loss_G_A.backward()
+        loss_G_A.backward(retain_graph=True)
         
     def backward_G_B(self):
         
@@ -358,19 +358,21 @@ class CycleGAN(nn.Module):
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
         loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
-        loss_G_B.backward()
+        loss_G_B.backward(retain_graph=True)
         
     def backward_Cycle_A(self):
         
         loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_A'] = loss_loss_Cycle_A.detach()
         
-        loss_Cycle_A.backward()
+        loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
         loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_B'] = loss_loss_Cycle_B.detach()
+        
+        loss_Cycle_B.backward(retain_graph=True)
         
     def optimize_parameter(self):
     
