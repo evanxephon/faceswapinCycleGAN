@@ -13,6 +13,8 @@ def calc_loss(output, target, method='L2'):
         
     if method == 'CE':
         loss = mse(output, target)
+    
+    return loss
         
 def reconstruction_loss(output, target, method='L2', loss_weight_config={}):
     
