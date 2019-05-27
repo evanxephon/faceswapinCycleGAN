@@ -16,7 +16,7 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=3, out_channels=64,
                       kernel_size=3, bias=False, stride=1, padding=0),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
         
 
@@ -24,14 +24,14 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=64, out_channels=128,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(128),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.conv3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=256,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(256),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.sablock1 = block.SABlock(dim_in=256, activation='relu')
@@ -40,7 +40,7 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=256, out_channels=512,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(512),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.sablock2 = block.SABlock(dim_in=512, activation='relu')
@@ -49,7 +49,7 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=512, out_channels=1024,
                       kernel_size=3, bias=False, stride=1, padding=0),
             nn.BatchNorm2d(1024),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.fc1 = nn.Linear(1024*4*4, 1024, bias=False)
@@ -64,7 +64,7 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=1024, out_channels=2048,
                       kernel_size=1, bias=False, stride=1, padding=0),
             nn.BatchNorm2d(2048),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.upscaleblock = nn.PixelShuffle(2)
@@ -115,7 +115,7 @@ class Decoder(nn.Module):
             nn.Conv2d(in_channels=dim_in, out_channels=256 *
                       2*2, kernel_size=3, bias=False, stride=1, padding=1),
             nn.BatchNorm2d(1024),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.upscaleblock1 = nn.PixelShuffle(2)
@@ -124,7 +124,7 @@ class Decoder(nn.Module):
             nn.Conv2d(in_channels=256, out_channels=128*2 *
                       2, kernel_size=3, bias=False, stride=1, padding=1),
             nn.BatchNorm2d(512),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.upscaleblock2 = nn.PixelShuffle(2)
@@ -135,7 +135,7 @@ class Decoder(nn.Module):
             nn.Conv2d(in_channels=128, out_channels=64*2*2,
                       kernel_size=3, bias=False, stride=1, padding=1),
             nn.BatchNorm2d(256),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.upscaleblock3 = nn.PixelShuffle(2)
@@ -148,13 +148,13 @@ class Decoder(nn.Module):
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1,
-                      kernel_size=5, bias=False, stride=1, padding=0),
+                      kernel_size=3, bias=False, stride=1, padding=1),
             nn.Sigmoid()
         )
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=3,
-                      kernel_size=5, bias=False, stride=1, padding=0),
+                      kernel_size=3, bias=False, stride=1, padding=1),
             nn.Tanh(),
         )
 
@@ -180,8 +180,12 @@ class Decoder(nn.Module):
         x, _ = self.sablock2(x)
 
         mask = self.conv4(x)
+        
+        assert mask.shape[1:] == (1, 64, 64), mask.shape
 
         output = self.conv5(x)
+        
+        assert mask.shape[1:] == (3, 64, 64), output.shape
 
         return output, mask
 
@@ -195,14 +199,14 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=128,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(128),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.sablock1 = block.SABlock(128, activation=None)
@@ -211,7 +215,7 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels=128, out_channels=256,
                       kernel_size=3, bias=False, stride=2, padding=0),
             nn.BatchNorm2d(256),
-            nn.LeakyReLU(),
+            nn.LeakyReLU(inplace=True),
         )
 
         self.sablock2 = block.SABlock(256, activation=None)
