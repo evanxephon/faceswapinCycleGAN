@@ -15,6 +15,7 @@ config = {'isTrain': True,
                                  'adversarial_loss_discriminator': 1,
                                  'adversarial_loss_generator': 1,
                                  'cycle_consistency_loss': 1,
+                                 'perceputal_loss': 1,
                                 },
 
           'G_lr': 0.0001,
@@ -35,6 +36,8 @@ config = {'isTrain': True,
          }
 
 torch.set_default_tensor_type(torch.FloatTensor)
+torch.autograd.set_detect_anomaly(True)
+
 if __name__ == '__main__':
     
     #build model to calculate perceptual loss 
