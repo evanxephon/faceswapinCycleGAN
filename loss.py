@@ -53,9 +53,9 @@ def perceptual_loss(input_real, fake, vggface, method='L2',loss_weight_config={}
         x -= [91.4953, 103.8827, 131.0912]
         return x    
     
-    real_sz224 = transform.functional.resize(input_real, [224, 224])
+    real_sz224 = transforms.functional.resize(input_real, [224, 224])
     real_sz224 = Lambda(preprocess_vggface)(real_sz224)
-    fake_sz224 = transform.functional.resize(fake, [224, 224])
+    fake_sz224 = transforms.functional.resize(fake, [224, 224])
     fake_sz224 = Lambda(preprocess_vggface)(fake_sz224)
     real_feat112, real_feat55, real_feat28, real_feat7 = vggface(real_sz224)
     fake_feat112, fake_feat55, fake_feat28, fake_feat7  = vggface(fake_sz224)
