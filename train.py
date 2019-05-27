@@ -49,7 +49,7 @@ if __name__ == '__main__':
     model = network.CycleGAN(vggface_feats, config=config)
     model.train()
     model.cuda()
-#     model.double()
+
     model.initialize_weights()
 
     for epoch in range(config['epochs']):
@@ -63,7 +63,9 @@ if __name__ == '__main__':
             model.cycle_consistency_loss = True
                     
         for batchdata in dataloader:
-            
+          
+            # need to model.float() every epoch, cuz pytorch reconstruct the grapy every epoch
+            model.float()
             model.set_input(batchdata)
             model.optimize_parameter()
                     
