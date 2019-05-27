@@ -20,7 +20,7 @@ def reconstruction_loss(output, target, method='L2', **loss_weight_config):
 
 def adversarial_loss_discriminator(output_fake, output_real, method='L2', **loss_weight_config):
     
-    weight = loss_weight_config['adversarial_loss']
+    weight = loss_weight_config['adversarial_loss_discriminator']
     
     real = torch.ones(output_real.size())
     fake = torch.zeros(output_fake.size())    
