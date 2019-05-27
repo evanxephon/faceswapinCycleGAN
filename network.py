@@ -309,10 +309,10 @@ class CycleGAN(nn.Module):
         self.fakeB = self.maskB * self.outputB + (1 - self.maskB) * self.warpedB  
         
         if self.isTrain:
-            self.fakeApred = self.Discriminator(self.fakeA)
-            self.fakeBpred = self.Discriminator(self.fakeB)
-            self.realApred = self.Discriminator(self.realA)
-            self.realBpred = self.Discriminator(self.realB)
+            self.fakeApred = self.DiscriminatorA(self.fakeA)
+            self.fakeBpred = self.DiscriminatorB(self.fakeB)
+            self.realApred = self.DiscriminatorA(self.realA)
+            self.realBpred = self.DiscriminatorB(self.realB)
         
         
         if self.cycle_consistency_loss:
@@ -394,6 +394,19 @@ class CycleGAN(nn.Module):
             self.backward_G_A()
             self.backward_G_B()
             self.optimizer_G.step()
+            
+    def set_requires_grad(self, nets, requires_grad=False):
+        """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
+        Parameters:
+            nets (network list)   -- a list of networks
+            requires_grad (bool)  -- whether the networks require gradients or not
+        """
+        if not isinstance(nets, list):
+            nets = [nets]
+        for net in nets:
+            if net is not None:
+                for param in net.parameters():
+                    param.requires_grad = requires_grad
         
     def initialize_weights(self):
         for m in self.modules():
