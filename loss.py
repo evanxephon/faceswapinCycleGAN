@@ -3,14 +3,16 @@ from torchvision import transforms
 
 def calc_loss(output, target, method='L2'):
     
+    mse = torch.nn.MSELoss(reduce=True, size_average=True)
+    
     if method == 'L2':
-        loss = torch.sum(torch.exp((output - target),2))
+        loss = mse(output, target)
             
     if method == 'L1':
         loss = torch.sum(torch.abs(output - target))
         
     if method == 'CE':
-        loss = torch.sum(target * torch.log(output, 2))
+        loss = mse(output, target)
         
 def reconstruction_loss(output, target, method='L2', loss_weight_config={}):
     
