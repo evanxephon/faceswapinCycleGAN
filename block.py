@@ -55,22 +55,17 @@ class ResidualBlock(nn.Module):
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
         self.conv2 = nn.Sequential(
             nn.Conv2d(in_channels=dim_in, out_channels=64,
                       kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
         )
 
     def forward(self, x):
-
-        identity = x
-
-        output = self.conv1(x)
-        output = self.conv2(output)
-
-        return nn.functional.relu(output + identity)
+        # using x.add_() reduce the memory cost, the _ function means inplace function
+        return nn.functional.relu(x.add_(self.conv2(self.conv1(x))))
 
