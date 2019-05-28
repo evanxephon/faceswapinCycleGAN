@@ -1,6 +1,7 @@
 #code borrowed from https://github.com/cydonia999/VGGFace2-pytorch/blob/master/models/resnet.py
 import torch.nn as nn
 import math
+import itertools.partial 
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -140,7 +141,28 @@ class ResNet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
+
+
+# add hook function to get feature map in forward prop
+class SaveFeatures():
+    features = None
+    def __init__(self, m): self.hook = m.register_forward_hook(self.hook_fn)
+    def hook_fn(self, module, input, output): self.features = output
+    def close(self): self.hook.remove()
         
+# choose every sub-module's layer's ftmap before the activation       
+def choose_ft_map(module):
+    children = []
+    for child in module.children():
+        children.append(child)
+        
+    childchildren = []    
+    for childchild in children[-1].children():
+        childchildren.append(childchild)
+    
+    # -2 mean before activation layer
+    return SaveFeatures(childchildren[-2])
+
 def resnet50(weights_path=None, **kwargs):
 
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
@@ -151,7 +173,12 @@ def resnet50(weights_path=None, **kwargs):
         weights = {key: torch.from_numpy(arr) for key, arr in pickle.loads(obj, encoding='latin1').items()}
         model.load_state_dict(weights)
         
+        # we get four layer ftmap, named layer1-4ftmap
+        for layer in ['layer1','layer2','layer3','layer4']:
+            exec(f'{layer}ftmap = itertools.partial(choose_ft_map, getattr(model, {layer})')
+        
     return model
+
     
 if __name__ == '__main__':
     model = resnet50("resnet50_scratch_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
