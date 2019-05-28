@@ -47,26 +47,42 @@ def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={
 def perceptual_loss(input_real, fake, vggface, method='L2',loss_weight_config={}):
 
     weight = loss_weight_config['perceptual_loss']
+    
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
-        x -= [91.4953, 103.8827, 131.0912]
-        return x    
+        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float()
+        return x
+
+    real = nn.functional.interpolate(input_real, (224,224))
+    fake = nn.functional.interpolate(fake, (224,224))
     
-    real_sz224 = cv2.resize(input_real, (224, 224))
-    real_sz224 = Lambda(preprocess_vggface)(real_sz224)
-    fake_sz224 = cv2.resize(fake, (224, 224))
-    fake_sz224 = Lambda(preprocess_vggface)(fake_sz224)
-    real_feat112, real_feat55, real_feat28, real_feat7 = vggface(real_sz224)
-    fake_feat112, fake_feat55, fake_feat28, fake_feat7  = vggface(fake_sz224)
+    # rgb to bgr
+    real = real[:,::-1,:,:]
+    fake = fake[:,::-1,:,:]
+    
+    # preprocess accroding to the vggface model
+    real = preprocess_vggface(real)
+    fake = preprocess_vggface(fake)
+
+    vggface(real)
+    real_ft_l1 = layer1ftmap.feature
+    real_ft_l2 = layer2ftmap.feature
+    real_ft_l3 = layer3ftmap.feature
+    real_ft_l4 = layer4ftmap.feature
+    
+    vggface(fake)
+    fake_ft_l1 = layer1ftmap.feature
+    fake_ft_l2 = layer2ftmap.feature
+    fake_ft_l3 = layer3ftmap.feature
+    fake_ft_l4 = layer4ftmap.feature
     
     # Apply instance norm on VGG(ResNet) features
     # From MUNIT https://github.com/NVlabs/MUNIT
     PL = 0
-    def instnorm(): return InstanceNormalization()
     
-    PL += weights[0] * calc_loss(instnorm()(fake_feat7), instnorm()(real_feat7), "l2") 
-    PL += weights[1] * calc_loss(instnorm()(fake_feat28), instnorm()(real_feat28), "l2")
-    PL += weights[2] * calc_loss(instnorm()(fake_feat55), instnorm()(real_feat55), "l2")
-    PL += weights[3] * calc_loss(instnorm()(fake_feat112), instnorm()(real_feat112), "l2")
+    PL += weights[0] * calc_loss(nn.functional.instance_norm(fake_feat7), nn.functional.instance_norm(real_feat7), "l2") 
+    PL += weights[1] * calc_loss(nn.functional.instance_norm(fake_feat28), nn.functional.instance_norm(real_feat28), "l2")
+    PL += weights[2] * calc_loss(nn.functional.instance_norm(fake_feat55), nn.functional.instance_norm(real_feat55), "l2")
+    PL += weights[3] * calc_loss(nn.functional.instance_norm(fake_feat112), nn.functional.instance_norm(real_feat112), "l2")
     
     return PL
