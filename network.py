@@ -2,7 +2,6 @@ import torch.nn as nn
 import block
 import torch
 import loss
-from keras.models import Model
 import itertools
 import os
 
