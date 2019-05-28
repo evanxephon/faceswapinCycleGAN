@@ -451,17 +451,3 @@ class CycleGAN(nn.Module):
                     del state_dict._metadata
                     
                 net.load_state_dict(state_dict)
-    
-def vggface_for_pl(vggface_keras, **loss_weight_config):
-    
-    vggface_keras.trainable = False
-    
-    out_size112 = vggface_keras.layers[15].output
-    out_size55 = vggface_keras.layers[35].output
-    out_size28 = vggface_keras.layers[77].output
-    out_size7 = vggface_keras.layers[-3].output
-    
-    vggface_feats = Model(vggface_keras.input, [out_size112, out_size55, out_size28, out_size7])
-    vggface_feats.trainable = False
-    
-    return vggface_feats
