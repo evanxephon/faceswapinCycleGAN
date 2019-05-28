@@ -40,11 +40,11 @@ class Dataset(data.Dataset):
 
         self.transform = self.get_transform(self.config['augmentation'])
         
-        if index > len(self.Aimages):
+        if index >= len(self.Aimages):
             rawAimage = self.Aimages[index % len(self.Aimages)]
             rawBimage = self.Bimages[index]
             
-        elif index > len(self.Bimages):
+        elif index >= len(self.Bimages):
             rawBimage = self.Bimages[index % len(self.Bimages)]
             rawAimage = self.Aimages[index]            
         else:
