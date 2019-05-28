@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import DataLoader
 import torch
+import vggface
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -49,7 +50,13 @@ if __name__ == '__main__':
         
     data = dataset.Dataset(config)
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
-    model = network.CycleGAN(vggface_feats, config=config)
+
+    vgg_for_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
+          
+    model = network.CycleGAN(vgg_for_pl, config=config)
+    
+
+
     model.train()
     model.cuda()
 
