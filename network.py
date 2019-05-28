@@ -244,7 +244,7 @@ class Discriminator(nn.Module):
     
 class CycleGAN(nn.Module):
     
-    def __init__(self, vggface, config):
+    def __init__(self, vggface_for_pl, config):
         
         super(CycleGAN, self).__init__()
         
@@ -256,7 +256,7 @@ class CycleGAN(nn.Module):
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
-        self.vggface_feats = vggface
+        self.vggface_for_pl = vggface_for_pl
         self.optimizers = []
         self.save_dir = config['save_dir']
         self.loss_value = {}
@@ -340,7 +340,7 @@ class CycleGAN(nn.Module):
         loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_A'] = loss_G_reconstruction_loss.detach()
         
-        loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config=self.loss_weight_config)
+        loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
         loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
@@ -354,7 +354,7 @@ class CycleGAN(nn.Module):
         loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_A'] = loss_G_reconstruction_loss.detach()
         
-        loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface_feats, method='L2', loss_weight_config=self.loss_weight_config)
+        loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
         loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
