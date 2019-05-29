@@ -1,4 +1,4 @@
-*CAUTION: THIS CODING HERE IS NOT DONE YET!*
+*CODE UNDER CONSTRUCTION*
 # faceswapinCycleGAN
 This project is mainly deepfake's implementation in Pytorch plus the perceptual loss and CycleGAN things.  
 It's highly inspired by shaoanlu's work in https://github.com/shaoanlu/faceswap-GAN.  
@@ -6,7 +6,7 @@ I also used his network architecture config and loss weights config cuz i don't 
 Anyway, I still make this project because my master dissertation is about it, I need an implementation made by myself:)  
 # the face swap things
 I think my project is mainly about three topics:  
-* 1.neural style transfer.  
+* 1.Neural Style Transfer.  
 * 2.Deepfake.   
-* 3.CycleGAN.  
+* 3.CycleGAN.
 # to be continued
