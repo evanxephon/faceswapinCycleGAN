@@ -19,7 +19,7 @@ class Dataset(data.Dataset):
 
             image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB') 
             
-            image = image[:,:,::-1]
+            image = Image.fromarray(np.array(image)[:,:,::-1])
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
             
@@ -29,7 +29,7 @@ class Dataset(data.Dataset):
         
             image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
             
-            image = image[:,:,::-1]
+            image = Image.fromarray(np.array(image)[:,:,::-1])
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
