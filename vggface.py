@@ -1,7 +1,6 @@
 #code borrowed from https://github.com/cydonia999/VGGFace2-pytorch/blob/master/models/resnet.py
 import torch.nn as nn
 import math
-from functools import partial
 import torch
 
 def conv3x3(in_planes, out_planes, stride=1):
@@ -174,17 +173,16 @@ def resnet50(weights_path=None, **kwargs):
         weights = {key: torch.from_numpy(arr) for key, arr in pickle.loads(obj, encoding='latin1').items()}
         model.load_state_dict(weights)
         
+        vggface_ft_pl = []
         # we get four layer ftmap, named layer1-4ftmap
-        for layer in ['layer1','layer2','layer3','layer4']:
-            exec(f'{layer}ftmap = partial(choose_ft_map, getattr(model, {layer}))',{'layer1': layer, 
-                                                                                    'layer2': layer,
-                                                                                    'layer3': layer,
-                                                                                    'layer4': layer,
-                                                                                    'partial': partial, 
-                                                                                    'choose_ft_map': choose_ft_map, 'model': model})
         
-    return model
+        vggface_ft_pl.append(choose_ft_map(model.layer1))
+        vggface_ft_pl.append(choose_ft_map(model.layer2))
+        vggface_ft_pl.append(choose_ft_map(model.layer3))
+        vggface_ft_pl.append(choose_ft_map(model.layer4))
+        
+    return model, vggface_ft_pl
 
     
 if __name__ == '__main__':
-    model = resnet50("resnet50_scratch_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
+    model, vggface_ft_pl = resnet50("resnet50_scratch_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
