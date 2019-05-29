@@ -1,7 +1,7 @@
 #code borrowed from https://github.com/cydonia999/VGGFace2-pytorch/blob/master/models/resnet.py
 import torch.nn as nn
 import math
-import functools.partial
+from functools import partial
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -175,7 +175,7 @@ def resnet50(weights_path=None, **kwargs):
         
         # we get four layer ftmap, named layer1-4ftmap
         for layer in ['layer1','layer2','layer3','layer4']:
-            exec(f'{layer}ftmap = functools.partial(choose_ft_map, getattr(model, {layer})')
+            exec(f'{layer}ftmap = partial(choose_ft_map, getattr(model, {layer})')
         
     return model
 
