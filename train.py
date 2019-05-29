@@ -14,7 +14,7 @@ config = {'isTrain': True,
                                  'adversarial_loss_discriminator': 1,
                                  'adversarial_loss_generator': 1,
                                  'cycle_consistency_loss': 1,
-                                 'perceputal_loss': 1,
+                                 'perceptual_loss': 1,
                                 },
 
           'G_lr': 0.0001,
