@@ -58,8 +58,6 @@ def perceptual_loss(input_real, fake, vggface_ft_pl, method='L2',loss_weight_con
     fake = nn.functional.interpolate(fake, (224,224))
     
     # rgb to bgr
-    real = real[:,::-1,:,:]
-    fake = fake[:,::-1,:,:]
     
     # preprocess accroding to the vggface model
     real = preprocess_vggface(real)
