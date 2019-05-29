@@ -67,5 +67,5 @@ class ResidualBlock(nn.Module):
 
     def forward(self, x):
         # using x.add_() reduce the memory cost, the _ function means inplace function
-        return nn.functional.relu(x.add_(self.conv2(self.conv1(x))))
+        return nn.functional.relu(x + self.conv2(self.conv1(x)), inplace=True)
 
