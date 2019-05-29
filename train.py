@@ -34,7 +34,10 @@ config = {'isTrain': True,
           
          }
 
+# set global tensor type, must match the model type
 torch.set_default_tensor_type(torch.FloatTensor)
+
+# for the debug thing
 torch.autograd.set_detect_anomaly(True)
 
 if __name__ == '__main__':
@@ -42,9 +45,6 @@ if __name__ == '__main__':
     #build model to calculate perceptual loss 
     if not os.path.isdir('./weights'):
         os.mkdir('./weights')
-    
-    vggface = VGGFace(include_top=False, model='resnet50', input_shape=(224, 224, 3))
-    vggface_feats = network.vggface_for_pl(vggface, loss_weight_config=config['loss_weight_config'])      
         
     data = dataset.Dataset(config)
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
