@@ -251,6 +251,10 @@ class CycleGAN(nn.Module):
         self.DecoderA = Decoder()
         self.DecoderB = Decoder()
         
+        self.EncoderAB.float()
+        self.DecoderA.float()
+        self.DecoderB.float()
+        
         self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
@@ -259,8 +263,8 @@ class CycleGAN(nn.Module):
         self.optimizers = []
         self.save_dir = config['save_dir']
         self.loss_value = {}
-          
-        self.display_epoch = False
+        
+        self.display_epoch = 10
         
         if self.isTrain:
             self.DiscriminatorA = Discriminator(3)
