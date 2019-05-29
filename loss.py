@@ -44,7 +44,7 @@ def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={
     
     return weight * calc_loss(input_real, output, method=method)   
 
-def perceptual_loss(input_real, fake, vggface, method='L2',loss_weight_config={}):
+def perceptual_loss(input_real, fake, vggface_ft_pl, method='L2',loss_weight_config={}):
 
     weight = loss_weight_config['perceptual_loss']
     
@@ -65,16 +65,16 @@ def perceptual_loss(input_real, fake, vggface, method='L2',loss_weight_config={}
     fake = preprocess_vggface(fake)
 
     vggface(real)
-    real_ft_l1 = layer1ftmap.feature
-    real_ft_l2 = layer2ftmap.feature
-    real_ft_l3 = layer3ftmap.feature
-    real_ft_l4 = layer4ftmap.feature
+    real_ft_l1 = vggface_ft_pl[0].feature
+    real_ft_l2 = vggface_ft_pl[1].feature
+    real_ft_l3 = vggface_ft_pl[2].feature
+    real_ft_l4 = vggface_ft_pl[3].feature
     
     vggface(fake)
-    fake_ft_l1 = layer1ftmap.feature
-    fake_ft_l2 = layer2ftmap.feature
-    fake_ft_l3 = layer3ftmap.feature
-    fake_ft_l4 = layer4ftmap.feature
+    fake_ft_l1 = vggface_ft_pl[0].feature
+    fake_ft_l2 = vggface_ft_pl[1].feature
+    fake_ft_l3 = vggface_ft_pl[2].feature
+    fake_ft_l4 = vggface_ft_pl[3].feature
     
     # Apply instance norm on VGG(ResNet) features
     # From MUNIT https://github.com/NVlabs/MUNIT
