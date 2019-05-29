@@ -1,7 +1,5 @@
 import network
 import dataset
-#import matplotlib.pyplot as plt
-from keras_vggface.vggface import VGGFace
 import os
 from IPython import display
 import cv2
@@ -55,10 +53,9 @@ if __name__ == '__main__':
           
     model = network.CycleGAN(vgg_for_pl, config=config)
     
-
-
     model.train()
     model.cuda()
+    model.float()
 
     model.initialize_weights()
 
@@ -107,8 +104,5 @@ if __name__ == '__main__':
             display(Image.fromarray(displayApic))
             display(Image.fromarray(realBpic))
             display(Image.fromarray(displayBpic))
-                    
-        print(f'loss')
-
-
             
+            # print loss
