@@ -176,7 +176,11 @@ def resnet50(weights_path=None, **kwargs):
         
         # we get four layer ftmap, named layer1-4ftmap
         for layer in ['layer1','layer2','layer3','layer4']:
-            exec(f'{layer}ftmap = partial(choose_ft_map, getattr(model, {layer}))',{'layer1': layer, 'partial': partial, 
+            exec(f'{layer}ftmap = partial(choose_ft_map, getattr(model, {layer}))',{'layer1': layer, 
+                                                                                    'layer2': layer,
+                                                                                    'layer3': layer,
+                                                                                    'layer4': layer,
+                                                                                    'partial': partial, 
                                                                                     'choose_ft_map': choose_ft_map, 'model': model})
         
     return model
