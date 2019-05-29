@@ -251,10 +251,6 @@ class CycleGAN(nn.Module):
         self.DecoderA = Decoder()
         self.DecoderB = Decoder()
         
-        self.EncoderAB.float()
-        self.DecoderA.float()
-        self.DecoderB.float()
-        
         self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
@@ -381,24 +377,32 @@ class CycleGAN(nn.Module):
     
         self.forward()
         
-        self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
+        self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], False)
+        
         self.optimizer_D.zero_grad()
         self.backward_D_A()
         self.backward_D_B()
         self.optimizer_D.step()
         
+        self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
+        
         if self.cycle_consistency_loss:
+            
+            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
+            
             self.backward_Cycle_A()
             self.backward_Cycle_B()
             self.optimizer_Cycle.step()
+            
+            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
         
         else:
-            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
+            
             self.optimizer_G.zero_grad()
 
             self.backward_G_A()
             self.backward_G_B()
-            self.optimizer_G.step()
+            self.optimizer_G.step() 
             
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
