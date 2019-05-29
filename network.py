@@ -184,7 +184,7 @@ class Decoder(nn.Module):
 
         output = self.conv5(x)
         
-        assert mask.shape[1:] == (3, 64, 64), output.shape
+        assert output.shape[1:] == (3, 64, 64), output.shape
 
         return output, mask
 
