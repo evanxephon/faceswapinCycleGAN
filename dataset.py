@@ -57,10 +57,10 @@ class Dataset(data.Dataset):
         warpedA, realA = warp_and_aug(randomAimage, self.config)
         warpedB, realB = warp_and_aug(randomBimage, self.config)
         
-        warpedA = transforms.functional.to_tensor(warpedA)
-        realA = transforms.functional.to_tensor(realA)
-        warpedB = transforms.functional.to_tensor(warpedB)
-        realB = transforms.functional.to_tensor(realB)
+        warpedA = transforms.functional.to_tensor(warpedA).float()
+        realA = transforms.functional.to_tensor(realA).float()
+        warpedB = transforms.functional.to_tensor(warpedB).float()
+        realB = transforms.functional.to_tensor(realB).float()
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
