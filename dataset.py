@@ -18,7 +18,7 @@ class Dataset(data.Dataset):
         for imagename in os.listdir(config['imagepath'][0]):
             
             #print(imagename) 
-            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')         
+            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('BGR')         
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
             
@@ -26,7 +26,7 @@ class Dataset(data.Dataset):
             
         for imagename in os.listdir(config['imagepath'][1]):
         
-            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
+            image =Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('BGR')
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
