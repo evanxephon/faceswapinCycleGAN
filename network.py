@@ -261,6 +261,7 @@ class CycleGAN(nn.Module):
         self.save_dir = config['save_dir']
         self.loss_value = {}
         self.vggface = vggface
+        self.batchsize = config['batchsize']
         
         self.display_epoch = True
         
@@ -282,11 +283,26 @@ class CycleGAN(nn.Module):
         
     def set_input(self, inputdata):
         
+        # display the image before train
+        print('image before training')
+        realAbatch = np.concatenate((inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(realAbatch))
+        
+        warpedAbatch = np.concatenate((inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(warpedAbatch))
+        
+        realBbatch = np.concatenate((inputdata['realA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(realBbatch))
+        
+        warpedBbatch = np.concatenate((inputdata['realB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(warpedBbatch))
+        
+        
         self.warpedA = Variable(inputdata['warpedA']).cuda()
         self.warpedB = Variable(inputdata['warpedB']).cuda()
         self.realA = Variable(inputdata['realA']).cuda()
         self.realB = Variable(inputdata['realB']).cuda()
-        
+       
     def forward(self):
         
         if self.display_epoch:
