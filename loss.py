@@ -83,9 +83,9 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     # From MUNIT https://github.com/NVlabs/MUNIT
     PL = 0
     
-    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_tf_l1), nn.functional.instance_norm(fake_ft_l1), 'l1') 
-    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_tf_l2), nn.functional.instance_norm(fake_ft_l2), 'l1')
-    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_tf_l3), nn.functional.instance_norm(fake_ft_l3), 'l1')
-    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_tf_l4), nn.functional.instance_norm(fake_ft_l4), 'l1')
+    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_ft_l1), nn.functional.instance_norm(fake_ft_l1), 'l1') 
+    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_ft_l2), nn.functional.instance_norm(fake_ft_l2), 'l1')
+    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'l1')
+    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'l1')
     
     return PL
