@@ -45,7 +45,7 @@ def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={
     
     return weight * calc_loss(input_real, output, method=method)   
 
-def perceptual_loss(input_real, fake, vggface_ft_pl, method='L2',loss_weight_config={}):
+def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
 
     weight = loss_weight_config['perceptual_loss']
     
@@ -62,14 +62,18 @@ def perceptual_loss(input_real, fake, vggface_ft_pl, method='L2',loss_weight_con
     # preprocess accroding to the vggface model
     real = preprocess_vggface(real)
     fake = preprocess_vggface(fake)
-
+    
+    # vggface forward 
     vggface(real)
+    
+    # get feature map from hook 
     real_ft_l1 = vggface_ft_pl[0].feature
     real_ft_l2 = vggface_ft_pl[1].feature
     real_ft_l3 = vggface_ft_pl[2].feature
     real_ft_l4 = vggface_ft_pl[3].feature
     
     vggface(fake)
+    
     fake_ft_l1 = vggface_ft_pl[0].feature
     fake_ft_l2 = vggface_ft_pl[1].feature
     fake_ft_l3 = vggface_ft_pl[2].feature
