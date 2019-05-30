@@ -295,6 +295,7 @@ class CycleGAN(nn.Module):
 
             self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
             self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
+            print(type(self.displayA))
               
         if not self.isTrain or self.cycle_consistency_loss:
             self.warpedA = self.realB
