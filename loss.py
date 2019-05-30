@@ -64,7 +64,8 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     fake = preprocess_vggface(fake).cuda()
     
     # vggface forward 
-    vggface(real)
+    with torch.no_grad():
+        vggface(real)
     
     # get feature map from hook 
     real_ft_l1 = vggface_ft_pl.featuremaps[0]
@@ -72,7 +73,8 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     real_ft_l3 = vggface_ft_pl.featuremaps[2]
     real_ft_l4 = vggface_ft_pl.featuremaps[3]
     
-    vggface(fake)
+    with torch.no_grad():
+        vggface(fake)
     
     fake_ft_l1 = vggface_ft_pl.featuremaps[0]
     fake_ft_l2 = vggface_ft_pl.featuremaps[1]
