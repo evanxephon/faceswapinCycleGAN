@@ -178,7 +178,7 @@ def resnet50(weights_path=None, **kwargs):
         choose_ft_map(model.layer3)
         choose_ft_map(model.layer4)
         
-    return model, Vggface_ft_pl
+    return model, Vggface_ft_map
 
     
 if __name__ == '__main__':
