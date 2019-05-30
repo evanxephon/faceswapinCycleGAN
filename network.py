@@ -281,10 +281,10 @@ class CycleGAN(nn.Module):
         
     def set_input(self, inputdata):
         
-        self.warpedA = inputdata['warpedA'].cuda()
-        self.warpedB = inputdata['warpedB'].cuda()
-        self.realA = inputdata['realA'].cuda()
-        self.realB = inputdata['realB'].cuda()
+        self.warpedA = Variable(inputdata['warpedA']).cuda()
+        self.warpedB = Variable(inputdata['warpedB']).cuda()
+        self.realA = Variable(inputdata['RealA']).cuda()
+        self.realB = Variable(inputdata['RealB']).cuda()
         
     def forward(self):
         
