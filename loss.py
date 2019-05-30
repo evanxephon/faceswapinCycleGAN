@@ -18,36 +18,36 @@ def calc_loss(output, target, method='L2'):
         
 def reconstruction_loss(output, target, method='L2', loss_weight_config={}):
     
-    weight = loss_weight_config['reconstruction_loss']
+    weight = loss_weight_config['reconstruction_loss'].cuda()
     
     return weight * calc_loss(output, target, method=method)
 
 def adversarial_loss_discriminator(output_fake, output_real, method='L2', loss_weight_config={}):
     
-    weight = loss_weight_config['adversarial_loss_discriminator']
+    weight = loss_weight_config['adversarial_loss_discriminator'].cuda()
     
-    real = torch.ones(output_real.size())
-    fake = torch.zeros(output_fake.size())    
+    real = torch.ones(output_real.size()).cuda()
+    fake = torch.zeros(output_fake.size()).cuda()    
     
     return weight * ( calc_loss(output_fake, fake, method=method) + calc_loss(output_real, real, method=method) )
     
 def adversarial_loss_generator(output_fake, method='L2', loss_weight_config={}):
     
-    weight = loss_weight_config['adversarial_loss_generator']
+    weight = loss_weight_config['adversarial_loss_generator'].cuda()
     
-    fake = torch.zeros(output_fake.size())
+    fake = torch.zeros(output_fake.size()).cuda()
     
     return weight * calc_loss(output_fake, fake, method=method)
 
 def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={}):
     
-    weight = loss_weight_config['cycle_consistency_loss']
+    weight = loss_weight_config['cycle_consistency_loss'].cuda()
     
     return weight * calc_loss(input_real, output, method=method)   
 
 def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
 
-    weights = loss_weight_config['perceptual_loss']
+    weights = loss_weight_config['perceptual_loss'].cuda()
     
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
