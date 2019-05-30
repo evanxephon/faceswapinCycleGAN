@@ -262,7 +262,7 @@ class CycleGAN(nn.Module):
         self.loss_value = {}
         self.vggface = vggface
         
-        self.display_epoch = 10
+        self.display_epoch = True
         
         if self.isTrain:
             self.DiscriminatorA = Discriminator(3)
@@ -289,7 +289,7 @@ class CycleGAN(nn.Module):
         
     def forward(self):
         
-        if self.display_epoch == True:
+        if self.display_epoch:
             self.displayAoutput, self.displayBmask = self.DecoderA(self.EncoderAB(self.realB))
             self.displayBoutput, self.displayBmask = self.DecoderB(self.EncoderAB(self.warpedB))
 
