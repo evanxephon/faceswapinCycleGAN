@@ -52,10 +52,6 @@ if __name__ == '__main__':
     vggface, vggface_ft_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
           
     model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
-    
-    model.train()
-    model.cuda()
-    model.float()
 
     model.initialize_weights()
 
@@ -71,8 +67,11 @@ if __name__ == '__main__':
                     
         for batchdata in dataloader:
           
-            # need to model.float() every epoch, cuz pytorch reconstruct the grapy every epoch
+            # need to init every epoch, cuz pytorch reconstruct the grapy every epoch
+            model.train()
+            model.cuda()
             model.float()
+                    
             model.set_input(batchdata)
             model.optimize_parameter()
                     
