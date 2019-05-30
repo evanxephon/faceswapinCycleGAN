@@ -19,6 +19,8 @@ class Dataset(data.Dataset):
 
             image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB') 
             
+            assert np.all(np.array(image) > 0), 'need positive matrix'
+            
             image = Image.fromarray(np.array(image)[:,:,::-1])
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
@@ -28,6 +30,8 @@ class Dataset(data.Dataset):
         for imagename in os.listdir(config['imagepath'][1]):
         
             image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
+            
+            assert np.all(np.array(image) > 0), 'need positive matrix'
             
             image = Image.fromarray(np.array(image)[:,:,::-1])
             
@@ -56,6 +60,9 @@ class Dataset(data.Dataset):
             
         randomAimage = self.transform(rawAimage)
         randomBimage = self.transform(rawBimage)
+        
+        assert np.all(realA > 0), 'need positive matrix'
+        assert np.all(warpedA > 0), 'need positive matrix'
 
         warpedA, realA = warp_and_aug(randomAimage, self.config)
         warpedB, realB = warp_and_aug(randomBimage, self.config)
