@@ -65,9 +65,9 @@ class Dataset(data.Dataset):
         
         #display image before data augmentation
         print('image before augmentation')
-        for i in range(self.batchsize):
-            display(randomAimage[i])
-            display(randomBimage[i])
+
+        display(randomAimage)
+        display(randomBimage)
             
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
@@ -83,20 +83,6 @@ class Dataset(data.Dataset):
         realA = transforms.functional.to_tensor(realA).float()
         warpedB = transforms.functional.to_tensor(warpedB).float()
         realB = transforms.functional.to_tensor(realB).float()
-        
-        # display the image before train
-        print('image before training')
-        realAbatch = np.concatenate((realA.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
-        display(transforms.functional.to_pil_image(realAbatch))
-        
-        warpedAbatch = np.concatenate((warpedA.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
-        display(transforms.functional.to_pil_image(warpedAbatch))
-        
-        realBbatch = np.concatenate((realB.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
-        display(transforms.functional.to_pil_image(realBbatch))
-        
-        warpedBbatch = np.concatenate((warpedB.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
-        display(transforms.functional.to_pil_image(warpedBbatch))
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
