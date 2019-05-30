@@ -290,12 +290,11 @@ class CycleGAN(nn.Module):
     def forward(self):
         
         if self.display_epoch:
-            self.displayAoutput, self.displayBmask = self.DecoderA(self.EncoderAB(self.realB))
+            self.displayAoutput, self.displayAmask = self.DecoderA(self.EncoderAB(self.realB))
             self.displayBoutput, self.displayBmask = self.DecoderB(self.EncoderAB(self.warpedB))
 
             self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
             self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
-            print(type(self.displayA))
               
         if not self.isTrain or self.cycle_consistency_loss:
             self.warpedA = self.realB
