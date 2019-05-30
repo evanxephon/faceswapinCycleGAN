@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 from data_augmentation import *
 import os
 from IPython.display import display
+from PIL import Image
 
 class Dataset(data.Dataset):
     def __init__(self, config):
@@ -66,8 +67,8 @@ class Dataset(data.Dataset):
         #display image before data augmentation
         print('image before augmentation')
 
-        display(randomAimage)
-        display(randomBimage)
+        display(Image.fromarray(np.array(randomAimage)[:,:,::-1]))
+        display(Image.fromarray(np.array(randomBimage)[:,:,::-1]))
             
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
@@ -78,7 +79,6 @@ class Dataset(data.Dataset):
         assert np.all(realA >= 0), 'need positive matrix'
         assert np.all(warpedA >= 0), 'need positive matrix'
         
-        
         warpedA = transforms.functional.to_tensor(warpedA).float()
         realA = transforms.functional.to_tensor(realA).float()
         warpedB = transforms.functional.to_tensor(warpedB).float()
@@ -88,8 +88,8 @@ class Dataset(data.Dataset):
         
     def get_transform(self, config):
         
-        if 'rotate_degree' in config.keys():
-            self.transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
+#         if 'rotate_degree' in config.keys():
+#             self.transformer_list.append(transforms.RandomRotation(np.random.randint(0,config['rotate_degree'])))
             
         if 'flip' in config.keys():
             self.transformer_list.append(transforms.RandomHorizontalFlip())
