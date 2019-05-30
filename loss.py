@@ -3,7 +3,7 @@ import torch.nn as nn
 
 def calc_loss(output, target, method='L2'):
     
-    mse = torch.nn.MSELoss(reduce=True, size_average=True)
+    mse = torch.nn.MSELoss(reduce=True, size_average=True).cuda()
     
     if method == 'L2':
         loss = mse(output, target)
