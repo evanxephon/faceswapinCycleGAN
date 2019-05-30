@@ -60,8 +60,8 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     # rgb to bgr
     
     # preprocess accroding to the vggface model
-    real = preprocess_vggface(real)
-    fake = preprocess_vggface(fake)
+    real = preprocess_vggface(real).cuda()
+    fake = preprocess_vggface(fake).cuda()
     
     # vggface forward 
     vggface(real)
