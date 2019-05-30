@@ -47,7 +47,7 @@ def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={
 
 def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
 
-    weights = torch.tensor(loss_weight_config['perceptual_loss'])
+    weights = torch.tensor(loss_weight_config['perceptual_loss']).cuda()
     
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
