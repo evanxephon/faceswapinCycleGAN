@@ -76,6 +76,29 @@ if __name__ == '__main__':
 
             model.set_input(batchdata)
             model.optimize_parameter()
+            # del mannully
+            del model.realA
+            del model.realB
+            del model.warpedA
+            del model.warpedB
+            del model.displayAoutput
+            del model.displayBoutput
+            del model.displayAmask
+            del model.displayBmask
+            del model.displayA
+            del model.displayB
+            del model.outputA
+            del model.outputB
+            del model.maskA
+            del model.maskB
+            del model.fakeA
+            del model.fakeB
+            del model.fakeApred
+            del model.fakeApred
+            del model.realBpred             
+            del model.realBpred
+            del model.cycleA
+            del model.cycleB
                     
         if epoch // config['display_interval'] == 0:
           
@@ -112,4 +135,4 @@ if __name__ == '__main__':
                 pics[i] = transforms.functional.to_pil_image(torch.tensor(pics[i]), 'RGB')
                 print(type(pics[i]))
                 display(pics[i])
-                
+             
