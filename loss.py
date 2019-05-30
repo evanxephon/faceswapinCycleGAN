@@ -67,17 +67,17 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     vggface(real)
     
     # get feature map from hook 
-    real_ft_l1 = vggface_ft_pl[0].feature
-    real_ft_l2 = vggface_ft_pl[1].feature
-    real_ft_l3 = vggface_ft_pl[2].feature
-    real_ft_l4 = vggface_ft_pl[3].feature
+    real_ft_l1 = vggface_ft_pl.featuremaps[0]
+    real_ft_l2 = vggface_ft_pl.featuremaps[1]
+    real_ft_l3 = vggface_ft_pl.featuremaps[2]
+    real_ft_l4 = vggface_ft_pl.featuremaps[3]
     
     vggface(fake)
     
-    fake_ft_l1 = vggface_ft_pl[0].feature
-    fake_ft_l2 = vggface_ft_pl[1].feature
-    fake_ft_l3 = vggface_ft_pl[2].feature
-    fake_ft_l4 = vggface_ft_pl[3].feature
+    fake_ft_l1 = vggface_ft_pl.featuremaps[0]
+    fake_ft_l2 = vggface_ft_pl.featuremaps[1]
+    fake_ft_l3 = vggface_ft_pl.featuremaps[2]
+    fake_ft_l4 = vggface_ft_pl.featuremaps[3]
     
     # Apply instance norm on VGG(ResNet) features
     # From MUNIT https://github.com/NVlabs/MUNIT
