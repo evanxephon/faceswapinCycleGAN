@@ -48,10 +48,10 @@ if __name__ == '__main__':
         
     data = dataset.Dataset(config)
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
-
+   
     vggface, vggface_ft_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
           
-    model = network.CycleGAN(vggface_ft_pl, config=config)
+    model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
     
     model.train()
     model.cuda()
