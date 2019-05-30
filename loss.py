@@ -51,7 +51,7 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
-        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float()
+        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float().cuda()
         return x
 
     real = nn.functional.interpolate(input_real, (224,224))
@@ -88,4 +88,4 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'L1')
     PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'L1')
     
-    return PL.cuda()
+    return PL
