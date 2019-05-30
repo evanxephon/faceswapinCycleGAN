@@ -5,6 +5,7 @@ import torch
 import loss
 import itertools
 import os
+import numpy as np
 
 class Encoder(nn.Module):
 
