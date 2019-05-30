@@ -155,7 +155,7 @@ class Decoder(nn.Module):
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=3,
                       kernel_size=3, bias=False, stride=1, padding=1),
-            nn.Tanh(),
+            nn.ReLU(inplace=True),
         )
 
     def forward(self, x):
