@@ -80,23 +80,24 @@ if __name__ == '__main__':
             model.optimize_parameter()
                     
         if epoch // config['display_interval'] == 0:
-            realA = np.array()
-            displayA = np.array()
+          
+            realApic = np.array([])
+            displayApic = np.array([])
             
-            realBpic = np.array()
-            displayBpic = np.array()
+            realBpic = np.array([])
+            displayBpic = np.array([])
             
             for batch in model.realA:
-                realApic = realApic.concatenate(np.squeeze(batch), axis=1)
+                realApic = np.concatenate((realApic, np.squeeze(batch)), axis=2)
             
             for batch in model.realB:
-                realBpic = realBpic.concatenate(np.squeeze(batch), axis=1)
+                realBpic = np.concatenate((realBpic, np.squeeze(batch)), axis=2)
                 
             for batch in model.displayA:
-                displayApic = displayApic.concatenate(np.squeeze(batch), axis=1)
+                displayApic = np.concatenate((displayApic, np.squeeze(batch)), axis=2)
                 
             for batch in model.displayB:
-                displayBpic = displayBpic.concatenate(np.squeeze(batch), axis=1)
+                displayBpic = np.concatenate((displayBpic, np.squeeze(batch)), axis=2)
                 
             realApic = cv2.cvtColor(realApic, cv2.COLOR_BGR2RGB)    
             displayApic = cv2.cvtColor(displayApic, cv2.COLOR_BGR2RGB) 
