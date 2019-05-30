@@ -68,45 +68,48 @@ if __name__ == '__main__':
                     
         for batchdata in dataloader:
           
-            # need to init every epoch, cuz pytorch reconstruct the grapy every epoch
-            vggface.float()
-            vggface.cuda()
+            # need to model.float() every epoch, cuz pytorch reconstruct the grapy every epoch
             
             model.train()
             model.cuda()
             model.float()
-                    
+
             model.set_input(batchdata)
             model.optimize_parameter()
                     
         if epoch // config['display_interval'] == 0:
           
-            realApic = np.array([])
-            displayApic = np.array([])
+            realApic = []
+            displayApic = []
             
-            realBpic = np.array([])
-            displayBpic = np.array([])
+            realBpic = []
+            displayBpic = []
             
-            for batch in model.realA:
-                realApic = np.concatenate((realApic, np.squeeze(batch)), axis=2)
+            for batch in model.realA:    
+                realApic.append(np.squeeze(batch.cpu().detach().numpy()))
+           
+            realApic = np.concatenate(tuple(realApic), axis=2)
             
             for batch in model.realB:
-                realBpic = np.concatenate((realBpic, np.squeeze(batch)), axis=2)
-                
+                realBpic.append(np.squeeze(batch.cpu().detach().numpy()))
+           
+            realBpic = np.concatenate(tuple(realBpic), axis=2)
+            
             for batch in model.displayA:
-                displayApic = np.concatenate((displayApic, np.squeeze(batch)), axis=2)
-                
+                displayApic.append(np.squeeze(batch.cpu().detach().numpy()))
+           
+            displayApic = np.concatenate(tuple(displayApic), axis=2)
+            
             for batch in model.displayB:
-                displayBpic = np.concatenate((displayBpic, np.squeeze(batch)), axis=2)
+                displayBpic.append(np.squeeze(batch.cpu().detach().numpy()))
+           
+            displayBpic = np.concatenate(tuple(displayBpic), axis=2)
+            
+            pics = [realApic, realBpic, displayApic, displayBpic]
+            for i in range(len(pics)):
+                assert np.all(pics[i] >= 0), f'{i} need possitive matrix!'
+                pics[i] = pics[i][::-1,:,:].copy()
+                pics[i] = transforms.functional.to_pil_image(torch.tensor(pics[i]), 'RGB')
+                print(type(pics[i]))
+                display(pics[i])
                 
-            realApic = cv2.cvtColor(realApic, cv2.COLOR_BGR2RGB)    
-            displayApic = cv2.cvtColor(displayApic, cv2.COLOR_BGR2RGB) 
-            realBpic = cv2.cvtColor(realBpic, cv2.COLOR_BGR2RGB) 
-            displayBpic = cv2.cvtColor(displayBpic, cv2.COLOR_BGR2RGB) 
-            
-            display(Image.fromarray(realApic))
-            display(Image.fromarray(displayApic))
-            display(Image.fromarray(realBpic))
-            display(Image.fromarray(displayBpic))
-            
-            # print loss
