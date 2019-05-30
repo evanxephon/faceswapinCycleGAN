@@ -5,6 +5,7 @@ import cv2
 import torchvision.transforms as transforms
 from data_augmentation import *
 import os
+from IPython.display import display
 
 class Dataset(data.Dataset):
     def __init__(self, config):
@@ -14,6 +15,7 @@ class Dataset(data.Dataset):
         self.Aimages = []
         self.Bimages = []
         self.transformer_list = []
+        self.batchsize = config['batchsize']
         
         for imagename in os.listdir(config['imagepath'][0]):
 
@@ -61,6 +63,12 @@ class Dataset(data.Dataset):
         randomAimage = self.transform(rawAimage)
         randomBimage = self.transform(rawBimage)
         
+        #display image before data augmentation
+        print('image before augmentation')
+        for i in range(self.batchsize):
+            display(randomAimage[i])
+            display(randomBimage[i])
+            
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
 
@@ -70,10 +78,25 @@ class Dataset(data.Dataset):
         assert np.all(realA >= 0), 'need positive matrix'
         assert np.all(warpedA >= 0), 'need positive matrix'
         
+        
         warpedA = transforms.functional.to_tensor(warpedA).float()
         realA = transforms.functional.to_tensor(realA).float()
         warpedB = transforms.functional.to_tensor(warpedB).float()
         realB = transforms.functional.to_tensor(realB).float()
+        
+        # display the image before train
+        print('image before training')
+        realAbatch = np.concatenate((realA.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(realAbatch))
+        
+        warpedAbatch = np.concatenate((warpedA.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(warpedAbatch))
+        
+        realBbatch = np.concatenate((realB.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(realBbatch))
+        
+        warpedBbatch = np.concatenate((warpedB.numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(1,2,0)
+        display(transforms.functional.to_pil_image(warpedBbatch))
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
