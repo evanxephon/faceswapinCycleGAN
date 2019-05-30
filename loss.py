@@ -47,11 +47,11 @@ def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={
 
 def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
 
-    weights = torch.tensor(loss_weight_config['perceptual_loss']).cuda()
+    weights = torch.tensor(loss_weight_config['perceptual_loss'])
     
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
-        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float().cuda()
+        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float()
         return x
 
     real = nn.functional.interpolate(input_real, (224,224))
@@ -60,8 +60,8 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     # rgb to bgr
     
     # preprocess accroding to the vggface model
-    real = preprocess_vggface(real).cuda()
-    fake = preprocess_vggface(fake).cuda()
+    real = preprocess_vggface(real)
+    fake = preprocess_vggface(fake)
     
     # vggface forward 
     vggface(real)
@@ -88,4 +88,4 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'L1')
     PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'L1')
     
-    return PL
+    return PL.cuda()
