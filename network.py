@@ -289,19 +289,20 @@ class CycleGAN(nn.Module):
         # display the image before train
         print('image before training')
         print(inputdata['realA'].numpy()[0].dtype)
+        print(inputdata['realA'].numpy()[0])
 
         # [::-1,:,:] for bgr to rgb, transpose to get w*h*c order image format
         display(Image.fromarray(np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
+                                               axis=2)[::-1,:,:].transpose(2,1,0).astype('uint8')))
         
         display(Image.fromarray(np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
+                                               axis=2)[::-1,:,:].transpose(2,1,0).astype('uint8')))
         
         display(Image.fromarray(np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
+                                               axis=2)[::-1,:,:].transpose(2,1,0).astype('uint8')))
         
         display(Image.fromarray(np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
+                                               axis=2)[::-1,:,:].transpose(2,1,0).astype('uint8')))
         
         self.warpedA = Variable(inputdata['warpedA']).cuda()
         self.warpedB = Variable(inputdata['warpedB']).cuda()
