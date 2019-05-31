@@ -288,27 +288,20 @@ class CycleGAN(nn.Module):
         
         # display the image before train
         print('image before training')
-        
-        display(transforms.functional.to_pil_image(inputdata['warpedA'].numpy()[0][::-1,:,:].transpose(1,2,0), mode='RGB'))
-        display(transforms.functional.to_pil_image(inputdata['realA'].numpy()[0][::-1,:,:].transpose(1,2,0), mode='RGB'))
-        
-        display(Image.fromarray((inputdata['realA'].numpy()[0][::-1,:,:].transpose(1,2,0) * 255).astype('uint8')))
-        display(Image.fromarray(inputdata['warpedA'].numpy()[0][::-1,:,:].transpose(1,2,0).astype('uint8')))
-        
+        print(inputdata['realA'].numpy()[0].dtype)
+
         # [::-1,:,:] for bgr to rgb, transpose to get w*h*c order image format
-        realAbatch = np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
-        print(realAbatch.shape)
-        display(transforms.functional.to_pil_image(realAbatch, mode='RGB'))
+        display(Image.fromarray(np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
         
-        warpedAbatch = np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
-        display(transforms.functional.to_pil_image(warpedAbatch, mode='RGB'))
+        display(Image.fromarray(np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
         
-        realBbatch = np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
-        display(transforms.functional.to_pil_image(realBbatch, mode='RGB'))
+        display(Image.fromarray(np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
         
-        warpedBbatch = np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
-        display(transforms.functional.to_pil_image(warpedBbatch, mode='RGB'))
-        
+        display(Image.fromarray(np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0).astype('uint8')))
         
         self.warpedA = Variable(inputdata['warpedA']).cuda()
         self.warpedB = Variable(inputdata['warpedB']).cuda()
