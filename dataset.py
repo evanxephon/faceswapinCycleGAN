@@ -6,7 +6,6 @@ import torchvision.transforms as transforms
 from data_augmentation import *
 import os
 from IPython.display import display
-from PIL import Image
 
 class Dataset(data.Dataset):
     def __init__(self, config):
@@ -32,7 +31,7 @@ class Dataset(data.Dataset):
             
         for imagename in os.listdir(config['imagepath'][1]):
         
-            image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB')
+            image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
@@ -79,10 +78,11 @@ class Dataset(data.Dataset):
         assert np.all(realA >= 0), 'need positive matrix'
         assert np.all(warpedA >= 0), 'need positive matrix'
         
-        warpedA = transforms.functional.to_tensor(warpedA).float()
-        realA = transforms.functional.to_tensor(realA).float()
-        warpedB = transforms.functional.to_tensor(warpedB).float()
-        realB = transforms.functional.to_tensor(realB).float()
+        # the data type should 'uint8' in order to satisfy the to_tensor requirement
+        warpedA = transforms.functional.to_tensor(warpedA.astype('uint8')).float()
+        realA = transforms.functional.to_tensor(realA.astype('uint8')).float()
+        warpedB = transforms.functional.to_tensor(warpedB.astype('uint8')).float()
+        realB = transforms.functional.to_tensor(realB.astype('uint8')).float()
         
         return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
         
