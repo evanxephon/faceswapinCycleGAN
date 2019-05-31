@@ -289,6 +289,7 @@ class CycleGAN(nn.Module):
         print('image before training')
         # [::-1,:,:] for bgr to rgb, transpose to get w*h*c order image format
         realAbatch = np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
+        print(realAbatch.shape)
         display(transforms.functional.to_pil_image(realAbatch, mode='RGB'))
         
         warpedAbatch = np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:]
