@@ -24,8 +24,10 @@ class Dataset(data.Dataset):
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
             image = Image.fromarray(np.array(image)[:,:,::-1])
+            display(image)
             
-            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)          
+            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image) 
+            display(image)
             
             self.Aimages.append(image)
             
