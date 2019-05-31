@@ -10,7 +10,7 @@ from IPython.display import display
 class Dataset(data.Dataset):
     def __init__(self, config):
         
-        self.config = config['data_augmentation']
+        self.config = config['augmentation']
         
         self.Aimages = []
         self.Bimages = []
