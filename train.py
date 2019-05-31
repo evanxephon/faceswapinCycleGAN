@@ -14,7 +14,7 @@ config = {'isTrain': True,
                                  'adversarial_loss_discriminator': 1,
                                  'adversarial_loss_generator': 1,
                                  'cycle_consistency_loss': 1,
-                                 'perceptual_loss': 1,
+                                 'perceptual_loss': [0.25, 0.25, 0.25, 0.25],
                                 },
 
           'G_lr': 0.0001,
@@ -29,6 +29,7 @@ config = {'isTrain': True,
           'save_interval': 100,
           'augmentation':{'rotate_degree': 5,
                           'flip': True,
+                          'motion_blur': 0.6,
                          },
           'imagepath':['./faceA/align/', './faceB/align/'],
           
@@ -74,19 +75,14 @@ if __name__ == '__main__':
             model.cuda()
             model.float()
 
-            model.set_input(batchdata)
+            model.set_input(batchdata, display_train_data=False)
             model.optimize_parameter()
+                    
             # del mannully
             del model.realA
             del model.realB
             del model.warpedA
             del model.warpedB
-            del model.displayAoutput
-            del model.displayBoutput
-            del model.displayAmask
-            del model.displayBmask
-            del model.displayA
-            del model.displayB
             del model.outputA
             del model.outputB
             del model.maskA
@@ -94,45 +90,43 @@ if __name__ == '__main__':
             del model.fakeA
             del model.fakeB
             del model.fakeApred
-            del model.fakeApred
-            del model.realBpred             
+            del model.fakeBpred
+            del model.realApred             
             del model.realBpred
-            del model.cycleA
-            del model.cycleB
-                    
+            if model.cycle_consistency_loss:
+                del model.cycleA
+                del model.cycleB
+                
         if epoch // config['display_interval'] == 0:
           
-            realApic = []
-            displayApic = []
+            batchdata = iter(dataloader).next()
+            model.set_input(batchdata)
+            model.display_forward()
             
-            realBpic = []
-            displayBpic = []
+            print(f'display result epoch: {epoch}')
             
-            for batch in model.realA:    
-                realApic.append(np.squeeze(batch.cpu().detach().numpy()))
-           
-            realApic = np.concatenate(tuple(realApic), axis=2)
+            batchsize = config['batchsize']
             
-            for batch in model.realB:
-                realBpic.append(np.squeeze(batch.cpu().detach().numpy()))
-           
-            realBpic = np.concatenate(tuple(realBpic), axis=2)
+            display(Image.fromarray((np.concatenate(tuple(model.realA.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
             
-            for batch in model.displayA:
-                displayApic.append(np.squeeze(batch.cpu().detach().numpy()))
-           
-            displayApic = np.concatenate(tuple(displayApic), axis=2)
+            display(Image.fromarray((np.concatenate(tuple(model.displayA.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+              
+            display(Image.fromarray((np.concatenate(tuple(model.realB.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
             
-            for batch in model.displayB:
-                displayBpic.append(np.squeeze(batch.cpu().detach().numpy()))
-           
-            displayBpic = np.concatenate(tuple(displayBpic), axis=2)
-            
-            pics = [realApic, realBpic, displayApic, displayBpic]
-            for i in range(len(pics)):
-                assert np.all(pics[i] >= 0), f'{i} need possitive matrix!'
-                pics[i] = pics[i][::-1,:,:].copy()
-                pics[i] = transforms.functional.to_pil_image(torch.tensor(pics[i]), 'RGB')
-                print(type(pics[i]))
-                display(pics[i])
-             
+            display(Image.fromarray((np.concatenate(tuple(model.displayB.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+
+            del model.displayAoutput
+            del model.displayBoutput
+            del model.displayAmask
+            del model.displayBmask
+            del model.displayA
+            del model.displayB
+            if model.cycle_consistency_loss:
+                del model.cycleA
+                del model.cycleB
+
+               
