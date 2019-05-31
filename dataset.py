@@ -66,8 +66,8 @@ class Dataset(data.Dataset):
         #display image before data augmentation
         print('image before augmentation')
 
-        display(Image.fromarray(np.array(randomAimage)[:,:,::-1]))
-        display(Image.fromarray(np.array(randomBimage)[:,:,::-1]))
+#        display(Image.fromarray(np.array(randomAimage)[:,:,::-1]))
+#        display(Image.fromarray(np.array(randomBimage)[:,:,::-1]))
             
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
