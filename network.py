@@ -7,6 +7,7 @@ import itertools
 import os
 import numpy as np
 import torchvision.transforms as transforms
+from PIL import Image
 
 class Encoder(nn.Module):
 
