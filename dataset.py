@@ -84,7 +84,7 @@ class Dataset(data.Dataset):
         warpedB = transforms.functional.to_tensor(warpedB.astype('uint8')).float()
         realB = transforms.functional.to_tensor(realB.astype('uint8')).float()
         
-        return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedA, 'realB': realB}
+        return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedB, 'realB': realB}
         
     def get_transform(self, config):
         
