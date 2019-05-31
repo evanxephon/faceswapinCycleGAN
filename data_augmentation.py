@@ -98,6 +98,7 @@ def warp_and_aug(image, config):
     
     warped_img, real_img = random_warp_rev(image, roi=0.8)
     
-    warped_img, real_img = motion_blur([warped_img, real_img])
+    if config['motion_blur'] < np.random.randint(0,1):
+        warped_img, real_img = motion_blur([warped_img, real_img])
     
     return warped_img, real_img
