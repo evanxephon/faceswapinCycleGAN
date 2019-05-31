@@ -288,10 +288,8 @@ class CycleGAN(nn.Module):
         
         # display the image before train
         print('image before training')
-        print(inputdata['realA'].numpy()[0].dtype)
-        print(inputdata['realA'].numpy()[0])
-
-        # [::-1,:,:] for bgr to rgb, transpose to get w*h*c order image format
+        
+        # [::-1,:,:] for bgr to rgb, transpose to get h*w*c order image format, fromarray() to get w*h*c order Image type object
         display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
