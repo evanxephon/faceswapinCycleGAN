@@ -289,16 +289,16 @@ class CycleGAN(nn.Module):
         print('image before training')
         # [::-1,:,:] for bgr to rgb, transpose to get w*h*c order image format
         realAbatch = np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(2,1,0)
-        display(transforms.functional.to_pil_image(realAbatch))
+        display(transforms.functional.to_pil_image(realAbatch, mode='F'))
         
         warpedAbatch = np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(2,1,0)
-        display(transforms.functional.to_pil_image(warpedAbatch))
+        display(transforms.functional.to_pil_image(warpedAbatch, mode='F'))
         
         realBbatch = np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(2,1,0)
-        display(transforms.functional.to_pil_image(realBbatch))
+        display(transforms.functional.to_pil_image(realBbatch, mode='F'))
         
         warpedBbatch = np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), axis=2)[::-1,:,:].transpose(2,1,0)
-        display(transforms.functional.to_pil_image(warpedBbatch))
+        display(transforms.functional.to_pil_image(warpedBbatch, mode='F'))
         
         
         self.warpedA = Variable(inputdata['warpedA']).cuda()
