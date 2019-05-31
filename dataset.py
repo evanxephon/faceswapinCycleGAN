@@ -10,7 +10,7 @@ from IPython.display import display
 class Dataset(data.Dataset):
     def __init__(self, config):
         
-        self.config = config
+        self.config = config['data_augmentation']
         
         self.Aimages = []
         self.Bimages = []
@@ -49,7 +49,7 @@ class Dataset(data.Dataset):
     
     def __getitem__(self, index):
 
-        self.transform = self.get_transform(self.config['augmentation'])
+        self.transform = self.get_transform(self.config)
         
         if index >= len(self.Aimages):
             rawAimage = self.Aimages[index % len(self.Aimages)]
