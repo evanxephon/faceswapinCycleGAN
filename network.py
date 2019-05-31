@@ -6,6 +6,7 @@ import loss
 import itertools
 import os
 import numpy as np
+import torchvision.transforms as transforms
 
 class Encoder(nn.Module):
 
