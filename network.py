@@ -256,6 +256,7 @@ class CycleGAN(nn.Module):
         self.DecoderB = Decoder()
         
         self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
+        self.loss_names = ['loss_D_A', 'loss_D_B', 'loss_G_A', 'loss_G_B', 'loss_Cycle_A', 'lossCycle_B']
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
@@ -286,18 +287,18 @@ class CycleGAN(nn.Module):
         
         # display the image before train
         print('image before training')
-        
+        if display_train_data:
         # [::-1,:,:] for bgr to rgb, transpose to get h*w*c order image format, fromarray() to get w*h*c order Image type object
-        display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
-        display(Image.fromarray((np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
-        display(Image.fromarray((np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
-        display(Image.fromarray((np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
         self.warpedA = Variable(inputdata['warpedA']).cuda()
@@ -339,8 +340,7 @@ class CycleGAN(nn.Module):
             self.fakeBpred = self.DiscriminatorB(self.fakeB)
             self.realApred = self.DiscriminatorA(self.realA)
             self.realBpred = self.DiscriminatorB(self.realB)
-        
-        
+            
         if self.cycle_consistency_loss:
             
             self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))
@@ -350,13 +350,13 @@ class CycleGAN(nn.Module):
         
         loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_D_A'] = loss_D_A.detach()
-        loss_D_A.backward(retain_graph=True)
+        self.loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
         loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_D_B'] = loss_D_B.detach()
-        loss_D_B.backward(retain_graph=True)
+        self.loss_D_B.backward(retain_graph=True)
       
     def backward_G_A(self):
         
@@ -369,8 +369,8 @@ class CycleGAN(nn.Module):
         loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
-        loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
-        loss_G_A.backward(retain_graph=True)
+        self.loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
+        self.loss_G_A.backward(retain_graph=True)
         
     def backward_G_B(self):
         
@@ -383,22 +383,22 @@ class CycleGAN(nn.Module):
         loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
-        loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
-        loss_G_B.backward(retain_graph=True)
+        self.loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
+        self.loss_G_B.backward(retain_graph=True)
         
     def backward_Cycle_A(self):
         
         loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_A'] = loss_loss_Cycle_A.detach()
         
-        loss_Cycle_A.backward(retain_graph=True)
+        self.loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
         loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_B'] = loss_loss_Cycle_B.detach()
         
-        loss_Cycle_B.backward(retain_graph=True)
+        self.loss_Cycle_B.backward(retain_graph=True)
         
     def optimize_parameter(self):
     
