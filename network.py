@@ -266,8 +266,6 @@ class CycleGAN(nn.Module):
         self.vggface = vggface
         self.batchsize = config['batchsize']
         
-        self.display_epoch = True
-        
         if self.isTrain:
             self.DiscriminatorA = Discriminator(3)
             self.DiscriminatorB = Discriminator(3)
@@ -284,7 +282,7 @@ class CycleGAN(nn.Module):
             self.optimizers.append(self.optimizer_D)
             self.optimizers.append(self.optimizer_Cycle)
         
-    def set_input(self, inputdata):
+    def set_input(self, inputdata, display_train_data=False):
         
         # display the image before train
         print('image before training')
