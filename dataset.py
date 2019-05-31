@@ -64,7 +64,7 @@ class Dataset(data.Dataset):
         randomBimage = self.transform(rawBimage)
         
         #display image before data augmentation
-        print('image before augmentation')
+#        print('image before augmentation')
 
 #        display(Image.fromarray(np.array(randomAimage)[:,:,::-1]))
 #        display(Image.fromarray(np.array(randomBimage)[:,:,::-1]))
