@@ -151,13 +151,13 @@ class Decoder(nn.Module):
 
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1,
-                      kernel_size=3, bias=False, stride=1, padding=1),
-            nn.Sigmoid()
+                      kernel_size=3, stride=1, padding=1),
+            nn.ReLU(inplace=True),
         )
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=3,
-                      kernel_size=3, bias=False, stride=1, padding=1),
+                      kernel_size=3, stride=1, padding=1),
             nn.ReLU(inplace=True),
         )
 
