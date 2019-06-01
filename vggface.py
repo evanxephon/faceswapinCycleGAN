@@ -145,13 +145,15 @@ class ResNet(nn.Module):
 
 # add hook function to get feature map in forward prop
 class Vggface_ft_map():
-    featuremaps = []
-    def __init__(self, m): self.hook = m.register_forward_hook(self.hook_fn)
-    def hook_fn(self, module, input, output): self.featuremaps.append(output)
+    featuremaps = {}
+    def __init__(self, model, layer): 
+        self.hook = model.register_forward_hook(self.hook_fn)
+        self.layer = layer
+    def hook_fn(self, module, input, output): self.featuremaps[self.layer] = output
     def close(self): self.hook.remove()
         
 # choose every sub-module's layer's ftmap before the activation       
-def choose_ft_map(module):
+def choose_ft_map(module, layer):
     children = []
     for child in module.children():
         children.append(child)
@@ -161,7 +163,7 @@ def choose_ft_map(module):
         childchildren.append(childchild)
     
     # -2 mean before activation layer
-    Vggface_ft_map(childchildren[-2])
+    Vggface_ft_map(childchildren[-2], layer)
 
 def resnet50(weights_path=None, **kwargs):
 
@@ -173,10 +175,10 @@ def resnet50(weights_path=None, **kwargs):
         weights = {key: torch.from_numpy(arr) for key, arr in pickle.loads(obj, encoding='latin1').items()}
         model.load_state_dict(weights)
       
-        choose_ft_map(model.layer1)
-        choose_ft_map(model.layer2)
-        choose_ft_map(model.layer3)
-        choose_ft_map(model.layer4)
+        choose_ft_map(model.layer1, 'layer1')
+        choose_ft_map(model.layer2, 'layer2')
+        choose_ft_map(model.layer3, 'layer3')
+        choose_ft_map(model.layer4, 'layer4')
         
     return model, Vggface_ft_map
 
