@@ -63,23 +63,27 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     real = preprocess_vggface(real).cuda()
     fake = preprocess_vggface(fake).cuda()
     
+    def no_require_grad(model):
+        for param in model.parameters():
+            param.requires_grad = False
+    
     # vggface forward 
-    with torch.no_grad():
-        vggface(real)
+    no_require_grad(vggface)
+    
+    vggface(real)
     
     # get feature map from hook 
-    real_ft_l1 = vggface_ft_pl.featuremaps[0]
-    real_ft_l2 = vggface_ft_pl.featuremaps[1]
-    real_ft_l3 = vggface_ft_pl.featuremaps[2]
-    real_ft_l4 = vggface_ft_pl.featuremaps[3]
+    real_ft_l1 = vggface_ft_pl.featuremaps['layer1']
+    real_ft_l2 = vggface_ft_pl.featuremaps['layer2']
+    real_ft_l3 = vggface_ft_pl.featuremaps['layer3']
+    real_ft_l4 = vggface_ft_pl.featuremaps['layer4']
     
-    with torch.no_grad():
-        vggface(fake)
+    vggface(fake)
     
-    fake_ft_l1 = vggface_ft_pl.featuremaps[0]
-    fake_ft_l2 = vggface_ft_pl.featuremaps[1]
-    fake_ft_l3 = vggface_ft_pl.featuremaps[2]
-    fake_ft_l4 = vggface_ft_pl.featuremaps[3]
+    fake_ft_l1 = vggface_ft_pl.featuremaps['layer1']
+    fake_ft_l2 = vggface_ft_pl.featuremaps['layer2']
+    fake_ft_l3 = vggface_ft_pl.featuremaps['layer3']
+    fake_ft_l4 = vggface_ft_pl.featuremaps['layer4']
     
     # Apply instance norm on VGG(ResNet) features
     # From MUNIT https://github.com/NVlabs/MUNIT
