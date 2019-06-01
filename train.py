@@ -8,6 +8,7 @@ from PIL import Image
 from torch.utils.data import DataLoader
 import torch
 import vggface
+from glob import glob
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -46,8 +47,13 @@ if __name__ == '__main__':
     #build model to calculate perceptual loss 
     if not os.path.isdir('./weights'):
         os.mkdir('./weights')
-        
-    data = dataset.Dataset(config)
+
+    trainsetAfilenames = glob(config['imagepath'][0] + '*.*')
+    trainsetBfilenames = glob(config['imagepath'][1] + '*.*')
+
+    filenames = trainsetAfilenames + trainsetBfilenames
+          
+    data = dataset.Dataset(config, filenames)
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
    
     vggface, vggface_ft_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
