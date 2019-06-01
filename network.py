@@ -283,28 +283,29 @@ class CycleGAN(nn.Module):
             self.optimizers.append(self.optimizer_D)
             self.optimizers.append(self.optimizer_Cycle)
         
-    def set_input(self, inputdata, display_train_data=False):
-        
-        # display the image before train
-        print('image before training')
-        if display_train_data:
-        # [::-1,:,:] for bgr to rgb, transpose to get h*w*c order image format, fromarray() to get w*h*c order Image type object
-            display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
-        
-            display(Image.fromarray((np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
-        
-            display(Image.fromarray((np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
-        
-            display(Image.fromarray((np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
-                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+    def set_input(self, inputdata):
         
         self.warpedA = Variable(inputdata['warpedA']).cuda()
         self.warpedB = Variable(inputdata['warpedB']).cuda()
         self.realA = Variable(inputdata['realA']).cuda()
         self.realB = Variable(inputdata['realB']).cuda()
+        
+    def display_train_data(self, inputdata):
+        
+        # display the image before train
+        print('image before training')
+        # [::-1,:,:] for bgr to rgb, transpose to get h*w*c order image format, fromarray() to get w*h*c order Image type object
+        display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+        
+        display(Image.fromarray((np.concatenate(tuple(inputdata['warpedA'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+        
+        display(Image.fromarray((np.concatenate(tuple(inputdata['realB'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+        
+        display(Image.fromarray((np.concatenate(tuple(inputdata['warpedB'].numpy()[x] for x in range(self.batchsize)), 
+                                               axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
         
     def display_forward(self):
         
