@@ -1,7 +1,7 @@
 import network
 import dataset
 import os
-from IPython import display
+from IPython.display import display
 import cv2
 import numpy as np
 from PIL import Image
@@ -12,10 +12,10 @@ from glob import glob
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
-                                 'adversarial_loss_discriminator': 1,
-                                 'adversarial_loss_generator': 1,
-                                 'cycle_consistency_loss': 1,
-                                 'perceptual_loss': [0.25, 0.25, 0.25, 0.25],
+                                 'adversarial_loss_discriminator': 0.1,
+                                 'adversarial_loss_generator': 0.1,
+                                 'cycle_consistency_loss': 0.1,
+                                 'perceptual_loss': [0.03, 0.1, 0.3, 0.1],
                                 },
 
           'G_lr': 0.0001,
@@ -57,17 +57,16 @@ if __name__ == '__main__':
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
    
     vggface, vggface_ft_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
-          
-    
+
     model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
 
     model.initialize_weights()
+          
+    model.train()
 
     for epoch in range(config['epochs']):
-        if epoch // config['display_interval'] == 0:
-            model.displayepoch = True
             
-        if epoch // config['save_interval'] == 0:
+        if epoch % config['save_interval'] == 0:
             model.save_networks(epoch)
                     
         if epoch > config['cycleepochs']:
@@ -77,7 +76,6 @@ if __name__ == '__main__':
           
             # need to model.float() every epoch, cuz pytorch reconstruct the grapy every epoch
             
-            model.train()
             model.cuda()
             model.float()
 
@@ -104,7 +102,7 @@ if __name__ == '__main__':
                 del model.cycleA
                 del model.cycleB
                 
-        if epoch // config['display_interval'] == 0:
+        if epoch % config['display_interval'] == 0:
           
             batchdata = iter(dataloader).next()
             model.set_input(batchdata)
