@@ -8,7 +8,7 @@ import os
 from IPython.display import display
 
 class Dataset(data.Dataset):
-    def __init__(self, config):
+    def __init__(self, config, filenames):
         
         self.config = config['augmentation']
         
@@ -16,6 +16,7 @@ class Dataset(data.Dataset):
         self.Bimages = []
         self.transformer_list = []
         self.batchsize = config['batchsize']
+        self.filenames = filenames
         
         for imagename in os.listdir(config['imagepath'][0]):
 
@@ -74,8 +75,8 @@ class Dataset(data.Dataset):
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
 
-        warpedA, realA = warp_and_aug(randomAimage, self.config)
-        warpedB, realB = warp_and_aug(randomBimage, self.config)
+        warpedA, realA = warp_and_aug(randomAimage, self.config, self.filenames)
+        warpedB, realB = warp_and_aug(randomBimage, self.config, self.filenames)
         
         assert np.all(realA >= 0), 'need positive matrix'
         assert np.all(warpedA >= 0), 'need positive matrix'
