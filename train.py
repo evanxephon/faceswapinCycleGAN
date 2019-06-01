@@ -108,13 +108,19 @@ if __name__ == '__main__':
             
             batchsize = config['batchsize']
             
-            display(Image.fromarray((np.concatenate(tuple(model.realA.cpu().numpy()[x] for x in range(batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(model.realB.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+                    
+            display(Image.fromarray((np.concatenate(tuple(model.displayAmask.cpu().numpy()[x] for x in range(batchsize)), 
                                                     axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
             
             display(Image.fromarray((np.concatenate(tuple(model.displayA.cpu().numpy()[x] for x in range(batchsize)), 
                                                     axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
               
-            display(Image.fromarray((np.concatenate(tuple(model.realB.cpu().numpy()[x] for x in range(batchsize)), 
+            display(Image.fromarray((np.concatenate(tuple(model.realA.cpu().numpy()[x] for x in range(batchsize)), 
+                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+          
+            display(Image.fromarray((np.concatenate(tuple(model.displayBmask.cpu().numpy()[x] for x in range(batchsize)), 
                                                     axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
             
             display(Image.fromarray((np.concatenate(tuple(model.displayB.cpu().numpy()[x] for x in range(batchsize)), 
