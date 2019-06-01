@@ -350,13 +350,13 @@ class CycleGAN(nn.Module):
     def backward_D_A(self):
         
         self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_D_A'] = loss_D_A.detach()
+        self.loss_value['loss_D_A'] = self.loss_D_A.detach()
         self.loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
         self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_D_B'] = loss_D_B.detach()
+        self.loss_value['loss_D_B'] = self.loss_D_B.detach()
         self.loss_D_B.backward(retain_graph=True)
       
     def backward_G_A(self):
@@ -390,14 +390,14 @@ class CycleGAN(nn.Module):
     def backward_Cycle_A(self):
         
         self.loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_A'] = loss_loss_Cycle_A.detach()
+        self.loss_value['loss_Cycle_A'] = self.loss_loss_Cycle_A.detach()
         
         self.loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
         self.loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_B'] = loss_loss_Cycle_B.detach()
+        self.loss_value['loss_Cycle_B'] = self.loss_loss_Cycle_B.detach()
         
         self.loss_Cycle_B.backward(retain_graph=True)
         
