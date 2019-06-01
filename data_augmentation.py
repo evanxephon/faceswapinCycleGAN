@@ -35,6 +35,52 @@ def motion_blur(images):
     
     return images
 
+def random_color_match(image, filenames):
+    
+    rand_idx = np.random.randint(len(filenames))    
+    fn_match = filenames[rand_idx]
+    tar_img = cv2.imread(fn_match)
+    
+    if tar_img is None:
+        print(f"Failed reading image {fn_match} in random_color_match().")
+        return image
+    r = 60 # only take color information of the center area
+    
+    src_img = cv2.resize(image, (256,256))
+    tar_img = cv2.resize(tar_img, (256,256))  
+    
+    # randomly transform to XYZ color space
+    rand_color_space_to_XYZ = np.random.choice([True, False])
+    if rand_color_space_to_XYZ:
+        src_img = cv2.cvtColor(src_img, cv2.COLOR_BGR2XYZ)
+        tar_img = cv2.cvtColor(tar_img, cv2.COLOR_BGR2XYZ)
+    
+    # compute statistics
+    mean_tar = np.mean(tar_img[r:-r,r:-r,:], axis=(0,1))
+    s_tar = np.std(tar_img[r:-r,r:-r,:], axis=(0,1))
+    mean_src = np.mean(src_img[r:-r,r:-r,:], axis=(0,1))
+    s_src = np.std(src_img[r:-r,r:-r,:], axis=(0,1))    
+    
+    # randomly interpolate the statistics
+    rand_ratio = np.random.uniform()
+    mt = rand_ratio * mean_tar + (1 - rand_ratio) * mean_src
+    st = rand_ratio * s_tar + (1 - rand_ratio) * s_src
+    
+    # Apply color transfer from src to tar domain
+    if s_src.any() <= 1e-7: return src_img    
+    result = s_tar * (src_img.astype(np.float32) - mean_src) / (s_src+1e-7) + mean_tar
+    
+    if result.min() < 0:
+        result = result - result.min()
+    if result.max() > 255:
+        result = (255.0/result.max()*result).astype(np.float32)
+    
+    # transform back from XYZ to BGR color space if necessary
+    if rand_color_space_to_XYZ:
+        result = cv2.cvtColor(result.astype(np.uint8), cv2.COLOR_XYZ2BGR)
+        
+    return result
+
 def random_transform(image, rotation_range=ROTATION_RANGE, zoom_range=ZOOM_RANGE, shift_range=SHIFT_RANGE, random_flip=RANDOM_FLIP):
     
     w,h = image.size
@@ -92,9 +138,11 @@ def random_warp_rev(image, res=64, roi=0.6):
     
     return warped_image, real_image
 
-def warp_and_aug(image, config):
+def warp_and_aug(image, config, filenames):
     
     image = random_transform(image)
+    
+    image = random_color_match(image, filenames)
     
     warped_img, real_img = random_warp_rev(image, roi=0.8)
     
