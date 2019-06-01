@@ -75,7 +75,8 @@ if __name__ == '__main__':
             model.cuda()
             model.float()
 
-            model.set_input(batchdata, display_train_data=False)
+            model.set_input(batchdata)
+            # model.display_train_data(batchdata)
             model.optimize_parameter()
                     
             # del mannully
