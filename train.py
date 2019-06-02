@@ -71,7 +71,7 @@ if __name__ == '__main__':
         if epoch > config['cycleepochs']:
             model.cycle_consistency_loss = True
                     
-        for batchdata in dataloader:
+        for batchnum, batchdata in enumerate(dataloader):
           
             # need to model.float() every epoch, cuz pytorch reconstruct the graph every epoch
             
@@ -82,8 +82,21 @@ if __name__ == '__main__':
             model.set_input(batchdata)
             # model.display_train_data(batchdata)
             model.optimize_parameter()
+            
+            # display reconstruction result
+            
+            print(f'epoch:{epoch} reconstruction result')
+            
+            if batchnum ==  0:
+              
+                vis.show_recon_result(model.realA.cpu().numpy(), model.warpedA.cpu().numpy(), 
+                                      model.fakeA.cpu().numpy(), model.maskA.cpu().numpy())
+
+                vis.show_recon_result(model.realB.cpu().numpy(), model.warpedB.cpu().numpy(), 
+                                      model.fakeB.cpu().numpy(), model.maskB.cpu().numpy())
                     
             # del mannully
+            
             del model.realA
             del model.realB
             del model.warpedA
@@ -111,20 +124,13 @@ if __name__ == '__main__':
             print(f'display result epoch: {epoch}')
             
             batchsize = config['batchsize']
-                    
-            # display 
             
-            vis.show_recon_result(model.realA.cpu().numpy(), model.warpedA.cpu().numpy(), 
-                                  model.fakeA.cpu().numpy(), model.maskA.cpu().numpy())
-            
-            vis.show_recon_result(model.realB.cpu().numpy(), model.warpedB.cpu().numpy(), 
-                                  model.fakeB.cpu().numpy(), model.maskB.cpu().numpy())
-
             vis.show_swap_result(model.realB.cpu().numpy(), model.displayA.cpu().numpy(),
                                  model.displayAmask.cpu().numpy())
             
             vis.show_swap_result(model.realA.cpu().numpy(), model.displayB.cpu().numpy(),
                                  model.displayBmask.cpu().numpy())
+            
             
             del model.displayAoutput
             del model.displayBoutput
