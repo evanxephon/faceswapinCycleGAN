@@ -1,5 +1,6 @@
 from IPython.display import display
 from PIL import Image
+import numpy as np
 
 def display_rgb_image(batchimage):
 
