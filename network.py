@@ -412,8 +412,8 @@ class CycleGAN(nn.Module):
         self.backward_D_A()
         self.backward_D_B()
         
-       for para in self.DiscriminatorA.parameters():
-                print(para.grad)
+        for para in self.DiscriminatorA.parameters():
+            print(para.grad)
             
         self.optimizer_D.step()
         
