@@ -434,10 +434,10 @@ class CycleGAN(nn.Module):
             self.backward_G_A()
             self.backward_G_B()
             
-            for para in self.DecoderAB.parameters():
+            for para in self.EncoderAB.parameters():
                 print(para.grad)
                 
-            for para in self.EncoderA.parameters():
+            for para in self.DecoderA.parameters():
                 print(para.grad)
                 
             self.optimizer_G.step()
