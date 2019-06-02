@@ -74,7 +74,7 @@ if __name__ == '__main__':
                     
         for batchdata in dataloader:
           
-            # need to model.float() every epoch, cuz pytorch reconstruct the grapy every epoch
+            # need to model.float() every epoch, cuz pytorch reconstruct the graph every epoch
             
             model.cuda()
             model.float()
