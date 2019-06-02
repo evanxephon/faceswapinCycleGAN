@@ -20,13 +20,13 @@ def calc_loss(output, target, method='L2'):
         
 def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
     
-    weight = torch.tensor(loss_weight_config['reconstruction_loss']).cuda()
+    weight = torch.tensor(loss_weight_config['reconstruction_loss'], requires_grad=False).cuda()
     
     return weight * calc_loss(output, target, method=method)
 
 def adversarial_loss_discriminator(output_fake, output_real, method='L2', loss_weight_config={}):
     
-    weight = torch.tensor(loss_weight_config['adversarial_loss_discriminator']).cuda()
+    weight = torch.tensor(loss_weight_config['adversarial_loss_discriminator'], requires_grad=False).cuda()
     
     real = torch.ones(output_real.size()).cuda()
     fake = torch.zeros(output_fake.size()).cuda()    
@@ -35,25 +35,25 @@ def adversarial_loss_discriminator(output_fake, output_real, method='L2', loss_w
     
 def adversarial_loss_generator(output_fake, method='L2', loss_weight_config={}):
     
-    weight = torch.tensor(loss_weight_config['adversarial_loss_generator']).cuda()
+    weight = torch.tensor(loss_weight_config['adversarial_loss_generator'], requires_grad=False).cuda()
     
-    fake = torch.zeros(output_fake.size()).cuda()
+    fake = torch.ones(output_fake.size(), requires_grad=False).cuda()
     
     return weight * calc_loss(output_fake, fake, method=method)
 
 def cycle_consistency_loss(input_real, output, method='L1', loss_weight_config={}):
     
-    weight = torch.tensor(loss_weight_config['cycle_consistency_loss']).cuda()
+    weight = torch.tensor(loss_weight_config['cycle_consistency_loss'], requires_grad=False).cuda()
     
     return weight * calc_loss(input_real, output, method=method)   
 
 def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
 
-    weights = torch.tensor(loss_weight_config['perceptual_loss']).cuda()
+    weights = torch.tensor(loss_weight_config['perceptual_loss'], requires_grad=False).cuda()
     
     def preprocess_vggface(x):
         x = (x + 1)/2 * 255 # channel order: BGR
-        x -= torch.tensor([91.4953, 103.8827, 131.0912])[None,:,None,None].float().cuda()
+        x -= torch.tensor([91.4953, 103.8827, 131.0912], requires_grad=False)[None,:,None,None].float().cuda()
         return x
 
     real = nn.functional.interpolate(input_real, (224,224))
