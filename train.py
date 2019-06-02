@@ -84,10 +84,10 @@ if __name__ == '__main__':
             model.optimize_parameter()
             
             # display reconstruction result
-            
-            print(f'epoch:{epoch} reconstruction result')
-            
+
             if batchnum ==  0:
+                    
+                print(f'epoch:{epoch} reconstruction result')
               
                 vis.show_recon_result(model.realA.cpu().detach().numpy(), model.warpedA.cpu().detach().numpy(), 
                                       model.fakeA.cpu().detach().numpy(), model.maskA.cpu().detach().numpy())
@@ -138,6 +138,3 @@ if __name__ == '__main__':
             del model.displayBmask
             del model.displayA
             del model.displayB
-            if model.cycle_consistency_loss:
-                del model.cycleA
-                del model.cycleB
