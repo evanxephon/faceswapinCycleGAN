@@ -294,6 +294,7 @@ class CycleGAN(nn.Module):
         
         # display the image before train
         print('image before training')
+        
         # [::-1,:,:] for bgr to rgb, transpose to get h*w*c order image format, fromarray() to get w*h*c order Image type object
         display(Image.fromarray((np.concatenate(tuple(inputdata['realA'].numpy()[x] for x in range(self.batchsize)), 
                                                axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
@@ -349,13 +350,13 @@ class CycleGAN(nn.Module):
             
     def backward_D_A(self):
         
-        self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeApred, self.realApred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_D_A'] = self.loss_D_A.detach()
         self.loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
-        self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeB, self.realB, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeBpred, self.realBpred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_D_B'] = self.loss_D_B.detach()
         self.loss_D_B.backward(retain_graph=True)
       
@@ -414,23 +415,23 @@ class CycleGAN(nn.Module):
         
         self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
         
-        if self.cycle_consistency_loss:
+        self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
+        
+        if self.cycle_consistency_loss: 
             
-            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
-            
+            self.optimizer_Cycle.zero_grad()
             self.backward_Cycle_A()
             self.backward_Cycle_B()
             self.optimizer_Cycle.step()
-            
-            self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
-        
+                    
         else:
             
             self.optimizer_G.zero_grad()
-
             self.backward_G_A()
             self.backward_G_B()
-            self.optimizer_G.step() 
+            self.optimizer_G.step()
+            
+        self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
             
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
@@ -448,24 +449,18 @@ class CycleGAN(nn.Module):
     def initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                # print(m.weight.data.type())
-                # input()
-                # m.weight.data.fill_(1.0)
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
-                #print(m.weight)
-                
+
     def save_networks(self, epoch):
         
         for name in self.model_names:
             if isinstance(name, str):
+                
                 save_filename = f'{epoch}_net_{name}.pth'
                 save_path = os.path.join(self.save_dir, save_filename)
                 net = getattr(self, name)
 
-                if torch.cuda.is_available():
-                    torch.save(net.cpu().state_dict(), save_path)
-                else:
-                    torch.save(net.cpu().state_dict(), save_path)
+                torch.save(net.cpu().state_dict(), save_path)
                     
     def load_networks(self, epoch):
         for name in self.model_names:
