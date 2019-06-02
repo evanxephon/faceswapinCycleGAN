@@ -3,20 +3,22 @@ import torch.nn as nn
 
 def calc_loss(output, target, method='L2'):
     
-    mse = torch.nn.MSELoss(reduce=True, size_average=True).cuda()
+    mse = torch.nn.MSELoss(reduction='mean').cuda()
+    
+    ce = torch.nn.CrossEntropyLoss(reduction='mean').cuda()
     
     if method == 'L2':
         loss = mse(output, target)
             
     elif method == 'L1':
-        loss = torch.sum(torch.abs(output - target))
+        loss = torch.mean(torch.abs(output - target))
         
     elif method == 'CE':
-        loss = mse(output, target)
+        loss = ce(output, target)
     
     return loss
         
-def reconstruction_loss(output, target, method='L2', loss_weight_config={}):
+def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['reconstruction_loss']).cuda()
     
@@ -29,7 +31,7 @@ def adversarial_loss_discriminator(output_fake, output_real, method='L2', loss_w
     real = torch.ones(output_real.size()).cuda()
     fake = torch.zeros(output_fake.size()).cuda()    
     
-    return weight * ( calc_loss(output_fake, fake, method=method) + calc_loss(output_real, real, method=method) )
+    return weight * (calc_loss(output_fake, fake, method=method) + calc_loss(output_real, real, method=method))
     
 def adversarial_loss_generator(output_fake, method='L2', loss_weight_config={}):
     
@@ -39,7 +41,7 @@ def adversarial_loss_generator(output_fake, method='L2', loss_weight_config={}):
     
     return weight * calc_loss(output_fake, fake, method=method)
 
-def cycle_consistency_loss(input_real, output, method='L2', loss_weight_config={}):
+def cycle_consistency_loss(input_real, output, method='L1', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['cycle_consistency_loss']).cuda()
     
@@ -89,9 +91,9 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     # From MUNIT https://github.com/NVlabs/MUNIT
     PL = 0
     
-    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_ft_l1), nn.functional.instance_norm(fake_ft_l1), 'L1') 
-    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_ft_l2), nn.functional.instance_norm(fake_ft_l2), 'L1')
-    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'L1')
-    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'L1')
+    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_ft_l1), nn.functional.instance_norm(fake_ft_l1), 'L2') 
+    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_ft_l2), nn.functional.instance_norm(fake_ft_l2), 'L2')
+    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'L2')
+    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'L2')
     
     return PL
