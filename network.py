@@ -411,6 +411,10 @@ class CycleGAN(nn.Module):
         self.optimizer_D.zero_grad()
         self.backward_D_A()
         self.backward_D_B()
+        
+       for para in self.DiscriminatorA.parameters():
+                print(para.grad)
+            
         self.optimizer_D.step()
         
         self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
@@ -429,6 +433,13 @@ class CycleGAN(nn.Module):
             self.optimizer_G.zero_grad()
             self.backward_G_A()
             self.backward_G_B()
+            
+            for para in self.DecoderAB.parameters():
+                print(para.grad)
+                
+            for para in self.EncoderA.parameters():
+                print(para.grad)
+                
             self.optimizer_G.step()
             
         self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
