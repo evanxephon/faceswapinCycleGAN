@@ -61,7 +61,7 @@ if __name__ == '__main__':
     
     model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
 
-    model.initialize_weights()
+#    model.initialize_weights()
 
     for epoch in range(config['epochs']):
 
