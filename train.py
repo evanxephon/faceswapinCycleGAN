@@ -89,11 +89,11 @@ if __name__ == '__main__':
             
             if batchnum ==  0:
               
-                vis.show_recon_result(model.realA.cpu().numpy(), model.warpedA.cpu().numpy(), 
-                                      model.fakeA.cpu().numpy(), model.maskA.cpu().numpy())
+                vis.show_recon_result(model.realA.cpu().detach().numpy(), model.warpedA.cpu().detach().numpy(), 
+                                      model.fakeA.cpu().detach().numpy(), model.maskA.cpu().detach().numpy())
 
-                vis.show_recon_result(model.realB.cpu().numpy(), model.warpedB.cpu().numpy(), 
-                                      model.fakeB.cpu().numpy(), model.maskB.cpu().numpy())
+                vis.show_recon_result(model.realB.cpu().detach().numpy(), model.warpedB.cpu().detach().numpy(), 
+                                      model.fakeB.cpu().detach().numpy(), model.maskB.cpu().detach().numpy())
                     
             # del mannully
             
