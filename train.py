@@ -1,14 +1,14 @@
 import network
 import dataset
 import os
-from IPython.display import display
 import cv2
 import numpy as np
-from PIL import Image
 from torch.utils.data import DataLoader
 import torch
 import vggface
 from glob import glob
+import imp
+import visualization as vis
 
 config = {'isTrain': True,
           'loss_weight_config': {'reconstruction_loss': 1,
@@ -21,11 +21,11 @@ config = {'isTrain': True,
           'G_lr': 0.0001,
           'D_lr': 0.0002,
           'C_lr': 0.0001,
-          'batchsize': 4,
+          'batchsize': 8,
           'resize': 256,
           'epochs': 1000,
           'cycleepochs': 800,
-          'display_interval': 50,
+          'display_interval': 1,
           'save_dir': './weights/',
           'save_interval': 100,
           'augmentation':{'rotate_degree': 5,
@@ -57,15 +57,14 @@ if __name__ == '__main__':
     dataloader = DataLoader(data, config['batchsize'], drop_last=True)
    
     vggface, vggface_ft_pl = vggface.resnet50("resnet50_ft_weight.pkl", num_classes=8631)  # Pretrained weights fc layer has 8631 outputs
-
+          
+    
     model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
 
     model.initialize_weights()
-          
-    model.train()
 
     for epoch in range(config['epochs']):
-            
+
         if epoch % config['save_interval'] == 0:
             model.save_networks(epoch)
                     
@@ -76,6 +75,7 @@ if __name__ == '__main__':
           
             # need to model.float() every epoch, cuz pytorch reconstruct the graph every epoch
             
+            model.train()
             model.cuda()
             model.float()
 
@@ -111,25 +111,21 @@ if __name__ == '__main__':
             print(f'display result epoch: {epoch}')
             
             batchsize = config['batchsize']
-            
-            display(Image.fromarray((np.concatenate(tuple(model.realB.cpu().numpy()[x] for x in range(batchsize)), 
-                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
                     
-            display(Image.fromarray(np.squeeze((np.concatenate(tuple(model.displayAmask.cpu().numpy()[x] for x in range(batchsize)), 
-                                                               axis=2).transpose(1,2,0)*255).astype('uint8'))))
+            # display 
             
-            display(Image.fromarray((np.concatenate(tuple(model.displayA.cpu().numpy()[x] for x in range(batchsize)), 
-                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
-              
-            display(Image.fromarray((np.concatenate(tuple(model.realA.cpu().numpy()[x] for x in range(batchsize)), 
-                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
-          
-            display(Image.fromarray(np.squeeze((np.concatenate(tuple(model.displayBmask.cpu().numpy()[x] for x in range(batchsize)), 
-                                                               axis=2).transpose(1,2,0)*255).astype('uint8'))))
+            vis.show_recon_result(model.realA.cpu().numpy(), model.warpedA.cpu().numpy(), 
+                                  model.fakeA.cpu().numpy(), model.maskA.cpu().numpy())
             
-            display(Image.fromarray((np.concatenate(tuple(model.displayB.cpu().numpy()[x] for x in range(batchsize)), 
-                                                    axis=2)[::-1,:,:].transpose(1,2,0)*255).astype('uint8')))
+            vis.show_recon_result(model.realB.cpu().numpy(), model.warpedB.cpu().numpy(), 
+                                  model.fakeB.cpu().numpy(), model.maskB.cpu().numpy())
 
+            vis.show_swap_result(model.realB.cpu().numpy(), model.displayA.cpu().numpy(),
+                                 model.displayAmask.cpu().numpy())
+            
+            vis.show_swap_result(model.realA.cpu().numpy(), model.displayB.cpu().numpy(),
+                                 model.displayBmask.cpu().numpy())
+            
             del model.displayAoutput
             del model.displayBoutput
             del model.displayAmask
@@ -139,5 +135,3 @@ if __name__ == '__main__':
             if model.cycle_consistency_loss:
                 del model.cycleA
                 del model.cycleB
-
-               
