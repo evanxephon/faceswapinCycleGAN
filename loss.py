@@ -47,7 +47,7 @@ def cycle_consistency_loss(input_real, output, method='L1', loss_weight_config={
     
     return weight * calc_loss(input_real, output, method=method)   
 
-def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_weight_config={}):
+def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L1',loss_weight_config={}):
 
     weights = torch.tensor(loss_weight_config['perceptual_loss'], requires_grad=False).cuda()
     
@@ -91,9 +91,9 @@ def perceptual_loss(input_real, fake, vggface, vggface_ft_pl, method='L2',loss_w
     # From MUNIT https://github.com/NVlabs/MUNIT
     PL = 0
     
-    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_ft_l1), nn.functional.instance_norm(fake_ft_l1), 'L2') 
-    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_ft_l2), nn.functional.instance_norm(fake_ft_l2), 'L2')
-    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), 'L2')
-    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), 'L2')
+    PL += weights[0] * calc_loss(nn.functional.instance_norm(real_ft_l1), nn.functional.instance_norm(fake_ft_l1), method) 
+    PL += weights[1] * calc_loss(nn.functional.instance_norm(real_ft_l2), nn.functional.instance_norm(fake_ft_l2), method)
+    PL += weights[2] * calc_loss(nn.functional.instance_norm(real_ft_l3), nn.functional.instance_norm(fake_ft_l3), method)
+    PL += weights[3] * calc_loss(nn.functional.instance_norm(real_ft_l4), nn.functional.instance_norm(fake_ft_l4), method)
     
     return PL
