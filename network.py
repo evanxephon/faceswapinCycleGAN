@@ -272,12 +272,12 @@ class CycleGAN(nn.Module):
             self.DiscriminatorB = Discriminator(3)
             
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
-                                                                self.DecoderB.parameters()), lr=config['G_lr'])#betas=(opt.beta1, 0.999)        
+                                                                self.DecoderB.parameters()), lr=config['G_lr'], betas=(0.9, 0.999))       
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
-                                                                 lr=config['D_lr'])#, betas=(opt.beta1, 0.999)) 
+                                                                 lr=config['D_lr']), betas=(0.9, 0.999)) 
             self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                     self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
-                                                    self.DiscriminatorB.parameters()), lr=config['C_lr'])#, betas=(opt.beta1, 0.999))
+                                                    self.DiscriminatorB.parameters()), lr=config['C_lr']), betas=(0.9, 0.999))
             
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
@@ -317,11 +317,6 @@ class CycleGAN(nn.Module):
             self.displayA = self.displayAmask * self.displayAoutput + (1 - self.displayAmask) * self.realB
             self.displayB = self.displayBmask * self.displayBoutput + (1 - self.displayBmask) * self.realA 
             
-            if self.cycle_consistency_loss:
-            
-                self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))
-                self.cycleB = self.DecoderB(self.EncoderAB(self.outputA))
-       
     def forward(self):
               
         if not self.isTrain or self.cycle_consistency_loss:
@@ -365,7 +360,7 @@ class CycleGAN(nn.Module):
         loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeApred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_adversarial_loss_A'] = loss_G_adversarial_loss.detach()
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeA, self.realA, method='L2', loss_weight_config=self.loss_weight_config)
+        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_A'] = loss_G_reconstruction_loss.detach()
         
         loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
@@ -379,7 +374,7 @@ class CycleGAN(nn.Module):
         loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeBpred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_adversarial_loss_B'] = loss_G_adversarial_loss.detach()
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeB, self.realB, method='L2', loss_weight_config=self.loss_weight_config)
+        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_B'] = loss_G_reconstruction_loss.detach()
         
         loss_G_perceptual_loss = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
@@ -390,14 +385,14 @@ class CycleGAN(nn.Module):
         
     def backward_Cycle_A(self):
         
-        self.loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_A'] = self.loss_loss_Cycle_A.detach()
         
         self.loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
-        self.loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_Cycle_B'] = self.loss_loss_Cycle_B.detach()
         
         self.loss_Cycle_B.backward(retain_graph=True)
@@ -414,12 +409,12 @@ class CycleGAN(nn.Module):
         
         for child in self.DiscriminatorB.children():
             for para in child.parameters():
-                print(para.grad)
+                print(para.grad[0][0])
                 break
             
         for child in self.DiscriminatorB.children():
             for para in child.parameters():
-                print(para.grad)
+                print(para.grad[0][0])
                 break
 
         self.optimizer_D.step()
@@ -443,17 +438,17 @@ class CycleGAN(nn.Module):
             
             for child in self.EncoderAB.children():
                 for para in child.parameters():
-                    print(para.grad)
+                    print(para.grad[0][0])
                     break
                 
             for child in self.DecoderA.children():
                 for para in child.parameters():
-                    print(para.grad)
+                    print(para.grad[0][0])
                     break
                 
             for child in self.DecoderB.children():
                 for para in child.parameters():
-                    print(para.grad)
+                    print(para.grad[0][0])
                     break
                 
             self.optimizer_G.step()
