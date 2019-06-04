@@ -407,15 +407,15 @@ class CycleGAN(nn.Module):
         self.backward_D_A()
         self.backward_D_B()
         
-        for child in self.DiscriminatorB.children():
-            for para in child.parameters():
-                print(para.grad[0][0])
-                break
+#         for child in self.DiscriminatorB.children():
+#             for para in child.parameters():
+#                 print(para.grad[0][0])
+#                 break
             
-        for child in self.DiscriminatorB.children():
-            for para in child.parameters():
-                print(para.grad[0][0])
-                break
+#         for child in self.DiscriminatorB.children():
+#             for para in child.parameters():
+#                 print(para.grad[0][0])
+#                 break
 
         self.optimizer_D.step()
         
@@ -436,20 +436,20 @@ class CycleGAN(nn.Module):
             self.backward_G_A()
             self.backward_G_B()
             
-            for child in self.EncoderAB.children():
-                for para in child.parameters():
-                    print(para.grad[0][0])
-                    break
+#             for child in self.EncoderAB.children():
+#                 for para in child.parameters():
+#                     print(para.grad[0][0])
+#                     break
                 
-            for child in self.DecoderA.children():
-                for para in child.parameters():
-                    print(para.grad[0][0])
-                    break
+#             for child in self.DecoderA.children():
+#                 for para in child.parameters():
+#                     print(para.grad[0][0])
+#                     break
                 
-            for child in self.DecoderB.children():
-                for para in child.parameters():
-                    print(para.grad[0][0])
-                    break
+#             for child in self.DecoderB.children():
+#                 for para in child.parameters():
+#                     print(para.grad[0][0])
+#                     break
                 
             self.optimizer_G.step()
             
