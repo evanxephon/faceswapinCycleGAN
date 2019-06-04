@@ -340,8 +340,8 @@ class CycleGAN(nn.Module):
             
         if self.cycle_consistency_loss:
             
-            self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))
-            self.cycleB = self.DecoderB(self.EncoderAB(self.outputA))
+            self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))[0]
+            self.cycleB = self.DecoderB(self.EncoderAB(self.outputA))[0]
             
     def backward_D_A(self):
         
