@@ -7,11 +7,13 @@ def calc_loss(output, target, method='L2'):
     
     ce = torch.nn.CrossEntropyLoss(reduction='mean').cuda()
     
+    abst = torch.nn.L1Loss()
+    
     if method == 'L2':
         loss = mse(output, target)
             
     elif method == 'L1':
-        loss = torch.mean(torch.abs(output - target))
+        loss = abst(output, target)
         
     elif method == 'CE':
         loss = ce(output, target)
