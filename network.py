@@ -274,10 +274,10 @@ class CycleGAN(nn.Module):
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                                 self.DecoderB.parameters()), lr=config['G_lr'], betas=(0.9, 0.999))       
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
-                                                                 lr=config['D_lr']), betas=(0.9, 0.999)) 
+                                                                 lr=config['D_lr'], betas=(0.9, 0.999)) 
             self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                     self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
-                                                    self.DiscriminatorB.parameters()), lr=config['C_lr']), betas=(0.9, 0.999))
+                                                    self.DiscriminatorB.parameters()), lr=config['C_lr'], betas=(0.9, 0.999))
             
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
