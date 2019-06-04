@@ -386,14 +386,14 @@ class CycleGAN(nn.Module):
     def backward_Cycle_A(self):
         
         self.loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_A'] = self.loss_loss_Cycle_A.detach()
+        self.loss_value['loss_Cycle_A'] = self.loss_Cycle_A.detach()
         
         self.loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
         self.loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_B'] = self.loss_loss_Cycle_B.detach()
+        self.loss_value['loss_Cycle_B'] = self.loss_Cycle_B.detach()
         
         self.loss_Cycle_B.backward(retain_graph=True)
         
