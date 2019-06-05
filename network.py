@@ -285,10 +285,10 @@ class CycleGAN(nn.Module):
         
     def set_input(self, inputdata):
         
-        self.warpedA = Variable(inputdata['warpedA']).cuda()
-        self.warpedB = Variable(inputdata['warpedB']).cuda()
-        self.realA = Variable(inputdata['realA']).cuda()
-        self.realB = Variable(inputdata['realB']).cuda()
+        self.warpedA = inputdata['warpedA'].cuda()
+        self.warpedB = inputdata['warpedB'].cuda()
+        self.realA = inputdata['realA'].cuda()
+        self.realB = inputdata['realB'].cuda()
         
     def display_train_data(self, inputdata):
         
@@ -360,7 +360,7 @@ class CycleGAN(nn.Module):
         loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeApred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_adversarial_loss_A'] = loss_G_adversarial_loss.detach()
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
+        loss_G_reconstruction_loss = loss.reconstruction_loss(self.outputA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_A'] = loss_G_reconstruction_loss.detach()
         
         loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
@@ -374,7 +374,7 @@ class CycleGAN(nn.Module):
         loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeBpred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_adversarial_loss_B'] = loss_G_adversarial_loss.detach()
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.fakeB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
+        loss_G_reconstruction_loss = loss.reconstruction_loss(self.outputB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_reconstruction_loss_B'] = loss_G_reconstruction_loss.detach()
         
         loss_G_perceptual_loss = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
