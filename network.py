@@ -257,8 +257,8 @@ class CycleGAN(nn.Module):
         
         self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
         self.loss_names = ['loss_D_A', 'loss_D_B', 'loss_G_A', 'loss_G_B', 'loss_Cycle_A', 'loss_Cycle_B', 
-                           'loss_G_adversarial_A', 'loss_G_reconstruction_A', 'loss_G_perceptual_A', 'self.loss_G_mask_A',
-                           'loss_G_adversarial_B', 'loss_G_reconstruction_B', 'loss_G_perceptual_B', 'self.loss_G_mask_B',
+                           'loss_G_adversarial_A', 'loss_G_reconstruction_A', 'loss_G_perceptual_A', 'loss_G_mask_A',
+                           'loss_G_adversarial_B', 'loss_G_reconstruction_B', 'loss_G_perceptual_B', 'loss_G_mask_B',
                           ]
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
