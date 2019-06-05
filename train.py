@@ -16,6 +16,7 @@ config = {'isTrain': True,
                                  'adversarial_loss_generator': 0.1,
                                  'cycle_consistency_loss': 0.1,
                                  'perceptual_loss': [0.03, 0.1, 0.3, 0.1],
+                                 'mask_loss': 0.01,
                                 },
 
           'G_lr': 0.0001,
