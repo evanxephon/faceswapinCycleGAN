@@ -152,13 +152,13 @@ class Decoder(nn.Module):
         self.conv4 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1,
                       kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
+            nn.Sigmoid(),
         )
 
         self.conv5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=3,
                       kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
+            nn.Tanh(),
         )
 
     def forward(self, x):
@@ -339,7 +339,9 @@ class CycleGAN(nn.Module):
             self.fakeBpred = self.DiscriminatorB(self.fakeB)
             self.realApred = self.DiscriminatorA(self.realA)
             self.realBpred = self.DiscriminatorB(self.realB)
-            
+            self.outputApred = self.DiscriminatorA(self.outputA)
+            self.outputBpred = self.DiscriminatorB(self.outputB)
+
         if self.cycle_consistency_loss:
             
             self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))[0]
@@ -347,17 +349,17 @@ class CycleGAN(nn.Module):
             
     def backward_D_A(self):
         
-        self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeApred, self.realApred, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeApred, self.outputApred, self.realApred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
-        self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeBpred, self.realBpred, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeBpred, self.outputBpred, self.realBpred, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_D_B.backward(retain_graph=True)
       
     def backward_G_A(self):
         
-        self.loss_G_adversarial_A = loss.adversarial_loss_generator(self.fakeApred, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_G_adversarial_A = loss.adversarial_loss_generator(self.fakeApred, self.outputApred, method='L2', loss_weight_config=self.loss_weight_config)
         
         self.loss_G_reconstruction_A = loss.reconstruction_loss(self.outputA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
         
@@ -371,7 +373,7 @@ class CycleGAN(nn.Module):
         
     def backward_G_B(self):
         
-        self.loss_G_adversarial_B = loss.adversarial_loss_generator(self.fakeBpred, method='L2', loss_weight_config=self.loss_weight_config)
+        self.loss_G_adversarial_B = loss.adversarial_loss_generator(self.fakeBpred, self.outputApred, method='L2', loss_weight_config=self.loss_weight_config)
         
         self.loss_G_reconstruction_B = loss.reconstruction_loss(self.outputB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
         
