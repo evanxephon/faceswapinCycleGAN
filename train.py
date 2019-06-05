@@ -75,7 +75,7 @@ if __name__ == '__main__':
             model.cycle_consistency_loss = True
                     
         if epoch >= 200:
-            model.config['mask_threshold'] = False
+            model.mask_threshold = False
                     
         for batchnum, batchdata in enumerate(dataloader):
           
