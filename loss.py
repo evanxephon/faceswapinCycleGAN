@@ -21,7 +21,7 @@ def calc_loss(output, target=None, method='L2'):
     elif method == 'VAR':
         h = output.shape[1]
         w = output.shape[2]
-        loss = torch.mean(abst(output[:,:h-1,:w-1,:], output[:,1:,:w-1,:])) + torch.mean(abst(output[:,:h-1,:w-1,:], output[:,:h-1,1:,:]))
+        loss = abst(output[:,:h-1,:w-1,:], output[:,1:,:w-1,:]) + abst(output[:,:h-1,:w-1,:], output[:,:h-1,1:,:])
     
     return loss
         
@@ -34,12 +34,13 @@ def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
 def mask_loss(mask, threshold=False, method='L1', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['mask_loss'], requires_grad=False).cuda()
-    
+    threshold = torch.tensor(threshold, requires_grad=False).float().cuda()
     if threshold:
+        
         thres = threshold - mask
         thres = torch.unsqueeze(thres, dim=0)
         zerom = torch.unsqueeze(torch.zeros(mask.size()), dim=0).cuda()
-        return weight * (torch.mean(torch.max(torch.cat((zerom, thres), dim=0), dim=0)[0]))# + calc_loss(mask, method='VAR') )
+        return weight * (torch.mean(torch.max(torch.cat((zerom, thres), dim=0), dim=0)[0]) + calc_loss(mask, method='VAR'))
         
     else:
         target = torch.zeros(mask.size()).cuda()
