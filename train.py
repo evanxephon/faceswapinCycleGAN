@@ -97,10 +97,10 @@ if __name__ == '__main__':
                 print(f'epoch:{epoch} reconstruction result')
               
                 vis.show_recon_result(model.realA.cpu().detach().numpy(), model.warpedA.cpu().detach().numpy(), 
-                                      model.fakeA.cpu().detach().numpy(), model.maskA.cpu().detach().numpy())
+                                      model.outputA.cpu().detach().numpy(), model.maskA.cpu().detach().numpy())
 
                 vis.show_recon_result(model.realB.cpu().detach().numpy(), model.warpedB.cpu().detach().numpy(), 
-                                      model.fakeB.cpu().detach().numpy(), model.maskB.cpu().detach().numpy())
+                                      model.outputB.cpu().detach().numpy(), model.maskB.cpu().detach().numpy())
                     
             # del mannully
             
@@ -130,10 +130,10 @@ if __name__ == '__main__':
             
             print(f'display result epoch: {epoch}')
                      
-            vis.show_swap_result(model.realB.cpu().numpy(), model.displayA.cpu().numpy(),
+            vis.show_swap_result(model.realB.cpu().numpy(), model.displayAoutput.cpu().numpy(),
                                  model.displayAmask.cpu().numpy())
             
-            vis.show_swap_result(model.realA.cpu().numpy(), model.displayB.cpu().numpy(),
+            vis.show_swap_result(model.realA.cpu().numpy(), model.displayBoutput.cpu().numpy(),
                                  model.displayBmask.cpu().numpy())
             
             
