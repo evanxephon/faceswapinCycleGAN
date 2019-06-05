@@ -34,23 +34,23 @@ def mask_loss(mask, method='L1', loss_weight_config={}):
     
     return weight * calc_loss(mask, target, method=method)
 
-def adversarial_loss_discriminator(fakepred, maskfakepred, realpred, method='L2', loss_weight_config={}):
+def adversarial_loss_discriminator(maskfakepred, fakepred, realpred, method='L2', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['adversarial_loss_discriminator'], requires_grad=False).cuda()
     
-    real = torch.ones(fakepred.size()).cuda()
-    fake = torch.zeros(realpred.size()).cuda()    
+    realtarget = torch.ones(fakepred.size()).cuda()
+    faketarget = torch.zeros(realpred.size()).cuda()    
     
-    return weight * (calc_loss(fakepred, fake, method=method) /2 + calc_loss(realpred, real, method=method) + 
-                     calc_loss(maskfakepred, fake, method=method) /2 )
+    return weight * (calc_loss(fakepred, faketarget, method=method) /2 + calc_loss(realpred, realtarget, method=method) + 
+                     calc_loss(maskfakepred, faketarget, method=method) /2 )
     
-def adversarial_loss_generator(fakepred, maskfakepred, method='L2', loss_weight_config={}):
+def adversarial_loss_generator(maskfakepred, fakepred, method='L2', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['adversarial_loss_generator'], requires_grad=False).cuda()
     
-    fake = torch.ones(fakepred.size(), requires_grad=False).cuda()
+    faketarget = torch.ones(fakepred.size(), requires_grad=False).cuda()
     
-    return weight * (calc_loss(fakepred, fake, method=method) /2 + calc_loss(maskfakepred, fake, method=method) /2)
+    return weight * (calc_loss(fakepred, faketarget, method=method) /2 + calc_loss(maskfakepred, faketarget, method=method) /2)
 
 def cycle_consistency_loss(input_real, output, method='L1', loss_weight_config={}):
     
