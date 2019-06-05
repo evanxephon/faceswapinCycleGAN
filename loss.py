@@ -36,7 +36,7 @@ def mask_loss(mask, threshold=False, method='L1', loss_weight_config={}):
     weight = torch.tensor(loss_weight_config['mask_loss'], requires_grad=False).cuda()
     
     if threshold:
-        thres -= mask
+        thres = threshold - mask
         zerom = torch.zeros(mask.size()).cuda()
         return weight * ( torch.mean(torch.max(torch.cat((zerom, thres), dim=3), dim=3)) + calc_loss(mask, method='VAR') )
         
