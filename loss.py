@@ -26,6 +26,12 @@ def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
     
     return weight * calc_loss(output, target, method=method)
 
+def mask_loss(mask, method='L1', loss_weight_config={}):
+    
+    target = torch.zeros(mask.size()).cuda()
+    
+    return weight * calc_loss(mask, target, method=method)
+
 def adversarial_loss_discriminator(output_fake, output_real, method='L2', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['adversarial_loss_discriminator'], requires_grad=False).cuda()
