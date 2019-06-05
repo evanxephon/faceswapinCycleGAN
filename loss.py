@@ -28,6 +28,8 @@ def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
 
 def mask_loss(mask, method='L1', loss_weight_config={}):
     
+    weight = torch.tensor(loss_weight_config['mask_loss'], requires_grad=False).cuda()
+    
     target = torch.zeros(mask.size()).cuda()
     
     return weight * calc_loss(mask, target, method=method)
