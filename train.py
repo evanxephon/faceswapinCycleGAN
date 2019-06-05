@@ -61,8 +61,6 @@ if __name__ == '__main__':
     model = network.CycleGAN(vggface, vggface_ft_pl, config=config)
     
     model.train()
-    model.cuda()
-    model.float()
 
 #    model.initialize_weights()
 
@@ -76,9 +74,13 @@ if __name__ == '__main__':
                     
         for batchnum, batchdata in enumerate(dataloader):
           
+            model.cuda()
+            model.float()
+       
             model.set_input(batchdata)
             # model.display_train_data(batchdata)
             model.optimize_parameter()
+            model.display_loss(epoch)
             
             # display reconstruction result
 
