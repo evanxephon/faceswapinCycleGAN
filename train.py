@@ -29,6 +29,7 @@ config = {'isTrain': True,
           'display_interval': 1,
           'save_dir': './weights/',
           'save_interval': 100,
+          'mask_threshold': 0.3,
           'augmentation':{'rotate_degree': 5,
                           'flip': True,
                           'motion_blur': 0.6,
@@ -73,6 +74,9 @@ if __name__ == '__main__':
         if epoch >= config['cycleepochs']:
             model.cycle_consistency_loss = True
                     
+        if epoch >= 200:
+            model.config['mask_threshold'] = False
+                    
         for batchnum, batchdata in enumerate(dataloader):
           
             model.cuda()
@@ -81,12 +85,15 @@ if __name__ == '__main__':
             model.set_input(batchdata)
             # model.display_train_data(batchdata)
             model.optimize_parameter()
-            model.display_loss(epoch)
+
             
             # display reconstruction result
 
             if batchnum == 0:
                     
+                    
+                model.display_loss(epoch)
+          
                 print(f'epoch:{epoch} reconstruction result')
               
                 vis.show_recon_result(model.realA.cpu().detach().numpy(), model.warpedA.cpu().detach().numpy(), 
