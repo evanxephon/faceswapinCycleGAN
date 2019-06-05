@@ -450,9 +450,10 @@ class CycleGAN(nn.Module):
         
         for name in self.loss_names:
             if isinstance(name, str):
-                loss = getattr(self, name)
-                print(f'{name}: {loss.cpu().item()}')
-                del loss
+                if hasattr(self, name):
+                    loss = getattr(self, name)
+                    print(f'{name}: {loss.cpu().item()}')
+                    del loss
 
     def save_networks(self, epoch):
         
