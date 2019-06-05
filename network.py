@@ -366,7 +366,9 @@ class CycleGAN(nn.Module):
         loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
         
-        self.loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
+        loss_G_mask_loss = loss.mask_loss(self.maskA, method='L1', loss_weight_config)
+        
+        self.loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss + loss_G_mask_loss
         self.loss_G_A.backward(retain_graph=True)
         
     def backward_G_B(self):
@@ -379,6 +381,8 @@ class CycleGAN(nn.Module):
         
         loss_G_perceptual_loss = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         self.loss_value['loss_G_perceptual_loss_B'] = loss_G_perceptual_loss.detach()
+        
+        loss_G_mask_loss = loss.mask_loss(self.maskB, method='L1', loss_weight_config)
         
         self.loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
         self.loss_G_B.backward(retain_graph=True)
