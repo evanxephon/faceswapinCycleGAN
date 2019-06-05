@@ -19,6 +19,7 @@ def calc_loss(output, target=None, method='L2'):
         loss = ce(output, target)
         
     elif method == 'VAR':
+        print(output.shape)
         h = output.shape[1]
         w = output.shape[2]
         loss = abst(output[:,:h-1,:w-1], output[:,1:,:w-1]) + abst(output[:,:h-1,:w-1], output[:,:h-1,1:])
