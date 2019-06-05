@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-def calc_loss(output, target, method='L2'):
+def calc_loss(output, target=None, method='L2'):
     
     mse = torch.nn.MSELoss(reduction='mean').cuda()
     
@@ -17,6 +17,11 @@ def calc_loss(output, target, method='L2'):
         
     elif method == 'CE':
         loss = ce(output, target)
+        
+    elif method == 'VAR':
+        h = output.shape[1]
+        w = output.shape[2]
+        loss = torch.mean(abst(output[:,:h-1,:w-1,:], output[:,1:,:w-1,:])) + torch.mean(abst(output[:,:h-1,:w-1,:], output[:,:h-1,1:,:]))
     
     return loss
         
@@ -26,13 +31,19 @@ def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
     
     return weight * calc_loss(output, target, method=method)
 
-def mask_loss(mask, method='L1', loss_weight_config={}):
+def mask_loss(mask, threshold=False, method='L1', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['mask_loss'], requires_grad=False).cuda()
     
-    target = torch.zeros(mask.size()).cuda()
-    
-    return weight * calc_loss(mask, target, method=method)
+    if thredhold:
+        
+        thres = torch.zeros(mask.size().cuda() + threshold
+        return weight * (torch.mean(torch.max(torch.cat((thres, mask), dim=3), dim=3)) + calc_loss(mask, method='VAR'))
+        
+    else:
+        target = torch.zeros(mask.size()).cuda()
+
+        return weight * (calc_loss(mask, target, method=method) + calc_loss(mask, method='VAR'))
 
 def adversarial_loss_discriminator(maskfakepred, fakepred, realpred, method='L2', loss_weight_config={}):
     
