@@ -256,14 +256,16 @@ class CycleGAN(nn.Module):
         self.DecoderB = Decoder()
         
         self.model_names = ['EncoderAB', 'DecoderA', 'DecoderB', 'DiscriminatorA', 'DiscriminatorB']
-        self.loss_names = ['loss_D_A', 'loss_D_B', 'loss_G_A', 'loss_G_B', 'loss_Cycle_A', 'lossCycle_B']
+        self.loss_names = ['loss_D_A', 'loss_D_B', 'loss_G_A', 'loss_G_B', 'loss_Cycle_A', 'loss_Cycle_B', 
+                           'loss_G_adversarial_A', 'loss_G_reconstruction_A', 'loss_G_perceptual_A', 'self.loss_G_mask_A',
+                           'loss_G_adversarial_B', 'loss_G_reconstruction_B', 'loss_G_perceptual_B', 'self.loss_G_mask_B',
+                          ]
         self.isTrain = config['isTrain']
         self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
         self.vggface_for_pl = vggface_for_pl
         self.optimizers = []
         self.save_dir = config['save_dir']
-        self.loss_value = {}
         self.vggface = vggface
         self.batchsize = config['batchsize']
         
@@ -346,58 +348,48 @@ class CycleGAN(nn.Module):
     def backward_D_A(self):
         
         self.loss_D_A = loss.adversarial_loss_discriminator(self.fakeApred, self.realApred, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_D_A'] = self.loss_D_A.detach()
         self.loss_D_A.backward(retain_graph=True)
         
     def backward_D_B(self):
         
         self.loss_D_B = loss.adversarial_loss_discriminator(self.fakeBpred, self.realBpred, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_D_B'] = self.loss_D_B.detach()
         self.loss_D_B.backward(retain_graph=True)
       
     def backward_G_A(self):
         
-        loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeApred, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_adversarial_loss_A'] = loss_G_adversarial_loss.detach()
+        self.loss_G_adversarial_A = loss.adversarial_loss_generator(self.fakeApred, method='L2', loss_weight_config=self.loss_weight_config)
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.outputA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_reconstruction_loss_A'] = loss_G_reconstruction_loss.detach()
+        self.loss_G_reconstruction_A = loss.reconstruction_loss(self.outputA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
         
-        loss_G_perceptual_loss = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_perceptual_loss_A'] = loss_G_perceptual_loss.detach()
+        self.loss_G_perceptual_A = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         
-        loss_G_mask_loss = loss.mask_loss(self.maskA, method='L1', loss_weight_config)
+        self.loss_G_mask_A = loss.mask_loss(self.maskA, method='L1', loss_weight_config)
         
-        self.loss_G_A = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss + loss_G_mask_loss
+        self.loss_G_A = self.loss_G_adversarial_A + self.loss_G_reconstruction_A + self.loss_G_perceptual_A + self.loss_G_mask_A
         self.loss_G_A.backward(retain_graph=True)
         
     def backward_G_B(self):
         
-        loss_G_adversarial_loss = loss.adversarial_loss_generator(self.fakeBpred, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_adversarial_loss_B'] = loss_G_adversarial_loss.detach()
+        self.loss_G_adversarial_B = loss.adversarial_loss_generator(self.fakeBpred, method='L2', loss_weight_config=self.loss_weight_config)
         
-        loss_G_reconstruction_loss = loss.reconstruction_loss(self.outputB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_reconstruction_loss_B'] = loss_G_reconstruction_loss.detach()
+        self.loss_G_reconstruction_B = loss.reconstruction_loss(self.outputB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
         
-        loss_G_perceptual_loss = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_G_perceptual_loss_B'] = loss_G_perceptual_loss.detach()
+        self.loss_G_perceptual_B = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
         
-        loss_G_mask_loss = loss.mask_loss(self.maskB, method='L1', loss_weight_config)
+        self.loss_G_mask_B = loss.mask_loss(self.maskB, method='L1', loss_weight_config)
         
-        self.loss_G_B = loss_G_adversarial_loss + loss_G_reconstruction_loss + loss_G_perceptual_loss
+        self.loss_G_B = self.loss_G_adversarial_B + self.loss_G_reconstruction_B + self.loss_G_perceptual_B + self.loss_G_mask_B
         self.loss_G_B.backward(retain_graph=True)
         
     def backward_Cycle_A(self):
         
         self.loss_Cycle_A = loss.cycle_consistency_loss(self.realA, self.cycleA, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_A'] = self.loss_Cycle_A.detach()
         
         self.loss_Cycle_A.backward(retain_graph=True)
         
     def backward_Cycle_B(self):
         
         self.loss_Cycle_B = loss.cycle_consistency_loss(self.realB, self.cycleB, method='L1', loss_weight_config=self.loss_weight_config)
-        self.loss_value['loss_Cycle_B'] = self.loss_Cycle_B.detach()
         
         self.loss_Cycle_B.backward(retain_graph=True)
         
@@ -411,16 +403,6 @@ class CycleGAN(nn.Module):
         self.backward_D_A()
         self.backward_D_B()
         
-#         for child in self.DiscriminatorB.children():
-#             for para in child.parameters():
-#                 print(para.grad[0][0])
-#                 break
-            
-#         for child in self.DiscriminatorB.children():
-#             for para in child.parameters():
-#                 print(para.grad[0][0])
-#                 break
-
         self.optimizer_D.step()
         
         self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
@@ -439,22 +421,7 @@ class CycleGAN(nn.Module):
             self.optimizer_G.zero_grad()
             self.backward_G_A()
             self.backward_G_B()
-            
-#             for child in self.EncoderAB.children():
-#                 for para in child.parameters():
-#                     print(para.grad[0][0])
-#                     break
-                
-#             for child in self.DecoderA.children():
-#                 for para in child.parameters():
-#                     print(para.grad[0][0])
-#                     break
-                
-#             for child in self.DecoderB.children():
-#                 for para in child.parameters():
-#                     print(para.grad[0][0])
-#                     break
-                
+  
             self.optimizer_G.step()
             
         self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
@@ -476,12 +443,19 @@ class CycleGAN(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
+                
+    def display_loss(self, epoch):
+        
+        for name in self.loss_names:
+            if isinstance(name, str):
+                loss = getattr(self, name)
+                print(f'{name}: {loss.cpu().data[0]}')
+                del loss
 
     def save_networks(self, epoch):
         
         for name in self.model_names:
             if isinstance(name, str):
-                
                 save_filename = f'{epoch}_net_{name}.pth'
                 save_path = os.path.join(self.save_dir, save_filename)
                 net = getattr(self, name)
