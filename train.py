@@ -14,13 +14,14 @@ config = {'isTrain': True,
           'loss_config':{'pl_on': False,
                          'cyclegan_on': False,
                          'lr_factor': 1.,
+                         'mask_threshold': 0.,
                               }
           'loss_weight_config': {'reconstruction_loss': 1,
                                  'adversarial_loss_discriminator': 0.1,
                                  'adversarial_loss_generator': 0.1,
                                  'cycle_consistency_loss': 0.1,
                                  'perceptual_loss': [0.03, 0.1, 0.3, 0.1],
-                                 'mask_loss': 0.,
+                                 'mask_loss': 0.01,
                                 },
           
           'G_lr': 0.0001,
@@ -73,24 +74,24 @@ if __name__ == '__main__':
                     
         # loss config change during training stage
         if epoch == config['epochs']/5:
-            model.loss_weight_config['mask_loss'] = 0.5
+            model.loss_['mask_threshold'] = 0.5
             model.loss_config['pl_on'] = True   
                     
         elif epoch == 2*config['epochs']/5:
-            model.loss_weight_config['mask_loss'] = 0.2
+            model.loss_['mask_threshold'] = 0.5
 
         elif epoch == config['epochs']/2:
-            model.loss_weight_config['mask_loss'] = 0.4 
+            model.loss_['mask_threshold'] = 0.5
             model.loss_config['lr_factor'] = 0.3
                     
         elif epoch == 2*config['epochs']/3:
-            model.loss_weight_config['mask_loss'] = 0.5
+            model.loss_['mask_threshold'] = 0.5
             model.loss_config['lr_factor'] = 1
                     
         elif epoch == 8*config['cycleepochs']/10:
             model.loss_config['cyclegan_on'] = True
             model.loss_config['lr_factor'] = 0.3
-            model.loss_weight_config['mask_loss'] = 0.1
+            model.loss_['mask_threshold'] = 0.5
           
         elif epoch == 9*config['cycleepochs']/10:
             model.loss_config['lr_factor'] = 0.5
@@ -107,19 +108,14 @@ if __name__ == '__main__':
             # model.display_train_data(batchdata)
             model.optimize_parameter()
 
-            
             # display reconstruction result
 
-            if batchnum == 0:
-                    
-                    
+            if batchnum == 0:    
                 model.display_loss(epoch)
           
                 print(f'epoch:{epoch} reconstruction result')
-              
                 vis.show_recon_result(model.realA.cpu().detach().numpy(), model.warpedA.cpu().detach().numpy(), 
                                       model.outputA.cpu().detach().numpy(), model.maskA.cpu().detach().numpy())
-
                 vis.show_recon_result(model.realB.cpu().detach().numpy(), model.warpedB.cpu().detach().numpy(), 
                                       model.outputB.cpu().detach().numpy(), model.maskB.cpu().detach().numpy())
                     
