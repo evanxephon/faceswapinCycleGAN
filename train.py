@@ -11,14 +11,18 @@ import imp
 import visualization as vis
 
 config = {'isTrain': True,
+          'loss_config':{'pl_on': False,
+                         'cyclegan_on': False,
+                         'lr_factor': 1.,
+                              }
           'loss_weight_config': {'reconstruction_loss': 1,
                                  'adversarial_loss_discriminator': 0.1,
                                  'adversarial_loss_generator': 0.1,
                                  'cycle_consistency_loss': 0.1,
                                  'perceptual_loss': [0.03, 0.1, 0.3, 0.1],
-                                 'mask_loss': 0.01,
+                                 'mask_loss': 0.,
                                 },
-
+          
           'G_lr': 0.0001,
           'D_lr': 0.0002,
           'C_lr': 0.0001,
@@ -29,7 +33,6 @@ config = {'isTrain': True,
           'display_interval': 1,
           'save_dir': './weights/',
           'save_interval': 100,
-          'mask_threshold': 0.3,
           'augmentation':{'rotate_degree': 5,
                           'flip': True,
                           'motion_blur': 0.6,
@@ -67,15 +70,33 @@ if __name__ == '__main__':
 #    model.initialize_weights()
 
     for epoch in range(config['epochs']):
+                    
+        # loss config change during training stage
+        if epoch == config['epochs']/5:
+            model.loss_weight_config['mask_loss'] = 0.5
+            model.loss_config['pl_on'] = True   
+                    
+        elif epoch == 2*config['epochs']/5:
+            model.loss_weight_config['mask_loss'] = 0.2
 
+        elif epoch == config['epochs']/2:
+            model.loss_weight_config['mask_loss'] = 0.4 
+            model.loss_config['lr_factor'] = 0.3
+                    
+        elif epoch == 2*config['epochs']/3:
+            model.loss_weight_config['mask_loss'] = 0.5
+            model.loss_config['lr_factor'] = 1
+                    
+        elif epoch == 8*config['cycleepochs']/10:
+            model.loss_config['cyclegan_on'] = True
+            model.loss_config['lr_factor'] = 0.3
+            model.loss_weight_config['mask_loss'] = 0.1
+          
+        elif epoch == 9*config['cycleepochs']/10:
+            model.loss_config['lr_factor'] = 0.5
+          
         if epoch % config['save_interval'] == 0:
             model.save_networks(epoch)
-                    
-        if epoch >= config['cycleepochs']:
-            model.cycle_consistency_loss = True
-                    
-        if epoch >= 200:
-            model.mask_threshold = False
                     
         for batchnum, batchdata in enumerate(dataloader):
           
