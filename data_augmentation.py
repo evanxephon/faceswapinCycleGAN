@@ -138,15 +138,12 @@ def random_warp_rev(image, res=64, roi=0.6):
     
     return warped_image, real_image
 
-def warp_and_aug(image, config, filenames):
+def warp_and_aug(image, filenames):
     
     image = random_transform(image)
     
     image = random_color_match(image, filenames)
     
     warped_img, real_img = random_warp_rev(image, roi=0.8)
-    
-    if config['motion_blur'] < np.random.randint(0,1):
-        warped_img, real_img = motion_blur([warped_img, real_img])
     
     return warped_img, real_img
