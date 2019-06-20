@@ -259,25 +259,25 @@ class CycleGAN(nn.Module):
         self.loss_names = ['loss_D_A', 'loss_D_B', 'loss_G_A', 'loss_G_B', 'loss_Cycle_A', 'loss_Cycle_B', 
                            'loss_G_adversarial_A', 'loss_G_reconstruction_A', 'loss_G_perceptual_A', 'loss_G_mask_A',
                            'loss_G_adversarial_B', 'loss_G_reconstruction_B', 'loss_G_perceptual_B', 'loss_G_mask_B',
+                           'loss_G_edge_A', 'loss_G_edge_B', 'loss_G_eye_A', 'loss_G_eye_B',
                           ]
         self.isTrain = config['isTrain']
-        self.cycle_consistency_loss = False
         self.loss_weight_config = config['loss_weight_config']
+        self.loss_config = config['loss_config']
         self.vggface_for_pl = vggface_for_pl
         self.optimizers = []
         self.save_dir = config['save_dir']
         self.vggface = vggface
         self.batchsize = config['batchsize']
-        self.mask_threshold = config['mask_threshold']
         
         if self.isTrain:
             self.DiscriminatorA = Discriminator(3)
             self.DiscriminatorB = Discriminator(3)
             
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
-                                                                self.DecoderB.parameters()), lr=config['G_lr'], betas=(0.9, 0.999))       
+                                                                self.DecoderB.parameters()), lr=self.loss_config['lr_factor']*config['G_lr'], betas=(0.9, 0.999))       
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.DiscriminatorA.parameters(), self.DiscriminatorB.parameters()),
-                                                                 lr=config['D_lr'], betas=(0.9, 0.999)) 
+                                                                 lr=self.loss_config['lr_factor']*config['D_lr'], betas=(0.9, 0.999)) 
             self.optimizer_Cycle = torch.optim.Adam(itertools.chain(self.EncoderAB.parameters(), self.DecoderA.parameters(),
                                                     self.DecoderB.parameters(),self.DiscriminatorA.parameters(),
                                                     self.DiscriminatorB.parameters()), lr=config['C_lr'], betas=(0.9, 0.999))
@@ -293,6 +293,10 @@ class CycleGAN(nn.Module):
         self.realA = inputdata['realA'].cuda()
         self.realB = inputdata['realB'].cuda()
         
+        if self.loss_config['edgeloss_on'] or self.loss_config['eyeloss_on']:
+            self.mask_eye_A = inputdata['eyemaskA'].cuda()
+            self.mask_eye_A = inputdata['eyemaskA'].cuda()
+            
     def display_train_data(self, inputdata):
         
         # display the image before train
@@ -322,7 +326,7 @@ class CycleGAN(nn.Module):
             
     def forward(self):
               
-        if not self.isTrain or self.cycle_consistency_loss:
+        if not self.isTrain or self.loss_config['cyclegan_on']:
             self.warpedA = self.realB
             self.warpedB = self.realA
             
@@ -343,7 +347,7 @@ class CycleGAN(nn.Module):
             self.outputApred = self.DiscriminatorA(self.outputA)
             self.outputBpred = self.DiscriminatorB(self.outputB)
 
-        if self.cycle_consistency_loss:
+        if self.loss_config['cyclegan_on']:
             
             self.cycleA = self.DecoderA(self.EncoderAB(self.outputB))[0]
             self.cycleB = self.DecoderB(self.EncoderAB(self.outputA))[0]
@@ -364,12 +368,22 @@ class CycleGAN(nn.Module):
         
         self.loss_G_reconstruction_A = loss.reconstruction_loss(self.outputA, self.realA, method='L1', loss_weight_config=self.loss_weight_config)
         
-        self.loss_G_perceptual_A = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
-        
-        self.loss_G_mask_A = loss.mask_loss(self.maskA, threshold=self.mask_threshold, method='L1', loss_weight_config=self.loss_weight_config)
+        self.loss_G_mask_A = loss.mask_loss(self.maskA, threshold=self.loss_config['mask_threshold'], method='L1', loss_weight_config=self.loss_weight_config)
         
         self.loss_G_A = self.loss_G_adversarial_A + self.loss_G_reconstruction_A + self.loss_G_perceptual_A + self.loss_G_mask_A
         
+        if self.loss_config['pl_on']:
+            self.loss_G_perceptual_A = loss.perceptual_loss(self.realA, self.fakeA, self.vggface,self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
+            self.loss_G_A += self.loss_G_perceptual_A
+            
+        if self.loss_config['edgeloss_on']:
+            self.loss_G_edge_A = loss.edge_loss(self.outputA, self.realA, self.mask_eye_A, method='L1', loss_weight_config=self.loss_weight_config)
+            self.loss_G_A += self.loss_G_edge_A
+            
+        if self.loss_config['eyeloss_on']:
+            self.loss_G_eye_A = loss.eye_loss(self.outputA, self.realA, self.mask_eye_A, method='L1', loss_weight_config=self.loss_weight_config)
+            self.loss_G_A += self.loss_G_eye_A
+            
         self.loss_G_A.backward(retain_graph=True)
         
     def backward_G_B(self):
@@ -377,13 +391,23 @@ class CycleGAN(nn.Module):
         self.loss_G_adversarial_B = loss.adversarial_loss_generator(self.fakeBpred, self.outputApred, method='L2', loss_weight_config=self.loss_weight_config)
         
         self.loss_G_reconstruction_B = loss.reconstruction_loss(self.outputB, self.realB, method='L1', loss_weight_config=self.loss_weight_config)
-        
-        self.loss_G_perceptual_B = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
-        
-        self.loss_G_mask_B = loss.mask_loss(self.maskB, threshold=self.mask_threshold, method='L1', loss_weight_config=self.loss_weight_config)
+       
+        self.loss_G_mask_B = loss.mask_loss(self.maskB, threshold=self.loss_config['mask_threshold'], method='L1', loss_weight_config=self.loss_weight_config)
         
         self.loss_G_B = self.loss_G_adversarial_B + self.loss_G_reconstruction_B + self.loss_G_perceptual_B + self.loss_G_mask_B
         
+        if self.loss_config['pl_on']:
+            self.loss_G_perceptual_B = loss.perceptual_loss(self.realB, self.fakeB, self.vggface, self.vggface_for_pl, method='L2', loss_weight_config=self.loss_weight_config)
+            self.loss_G_B += self.loss_G_perceptual_B
+
+        if self.loss_config['edgeloss_on']:
+            self.loss_G_edge_B = loss.edge_loss(self.outputB, self.realB, self.mask_eye_B, method='L1', loss_weight_config=self.loss_weight_config)
+            self.loss_G_B += self.loss_G_edge_B
+            
+        if self.loss_config['eyeloss_on']:
+            self.loss_G_eye_B = loss.eye_loss(self.outputB, self.realB, self.mask_eye_B, method='L1', loss_weight_config=self.loss_weight_config)
+            self.loss_G_B += self.loss_G_eye_B
+            
         self.loss_G_B.backward(retain_graph=True)
         
     def backward_Cycle_A(self):
@@ -407,14 +431,13 @@ class CycleGAN(nn.Module):
         self.optimizer_D.zero_grad()
         self.backward_D_A()
         self.backward_D_B()
-        
         self.optimizer_D.step()
         
         self.set_requires_grad([self.EncoderAB, self.DecoderA, self.DecoderB], True)
         
         self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
         
-        if self.cycle_consistency_loss: 
+        if self.loss_config['cyclegan_on]: 
             
             self.optimizer_Cycle.zero_grad()
             self.backward_Cycle_A()
@@ -422,11 +445,9 @@ class CycleGAN(nn.Module):
             self.optimizer_Cycle.step()
                     
         else:
-            
             self.optimizer_G.zero_grad()
             self.backward_G_A()
             self.backward_G_B()
-  
             self.optimizer_G.step()
             
         self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], True)
@@ -450,7 +471,6 @@ class CycleGAN(nn.Module):
                 torch.nn.init.xavier_uniform_(m.weight, gain=1)
                 
     def display_loss(self, epoch):
-        
         for name in self.loss_names:
             if isinstance(name, str):
                 if hasattr(self, name):
@@ -465,7 +485,6 @@ class CycleGAN(nn.Module):
                 save_filename = f'{epoch}_net_{name}.pth'
                 save_path = os.path.join(self.save_dir, save_filename)
                 net = getattr(self, name)
-
                 torch.save(net.cpu().state_dict(), save_path)
                     
     def load_networks(self, epoch):
