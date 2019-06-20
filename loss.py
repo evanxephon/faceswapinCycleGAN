@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision.transforms as transforms
 
 def calc_loss(output, target=None, method='L2'):
     
@@ -18,11 +19,20 @@ def calc_loss(output, target=None, method='L2'):
     elif method == 'CE':
         loss = ce(output, target)
         
+    # calculate the edge loss    
     elif method == 'VAR':
         h = output.shape[2]
         w = output.shape[3]
         loss = abst(output[:,:,:h-1,:w-1], output[:,:,1:,:w-1]) + abst(output[:,:,:h-1,:w-1], output[:,:,:h-1,1:])
-    
+        
+    elif method == 'VAR1'
+        h = output.shape[2]
+        loss = abst(output[:,:,:h-1,:w-1], output[:,:,1:,:w-1])
+        
+    elif method == 'VAR2':
+        w = output.shape[3]
+        loss = abst(output[:,:,:h-1,:w-1], output[:,:,:h-1,1:])
+        
     return loss
         
 def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
@@ -31,12 +41,21 @@ def reconstruction_loss(output, target, method='L1', loss_weight_config={}):
     
     return weight * calc_loss(output, target, method=method)
 
+def edge_loss(output, target, mask_eye, method='L1', loss_weight_config={}):
+    
+    weight = torch.tensor(loss_weight_config['edge_loss'], requires_grad=False).cuda()
+    weight_eye = torch.tensor(loss_weight_config['eye_loss'], requires_grad=False).cuda()
+    resize_mask_eye = transforms.functional.resize(mask_eye, (mask_eye.size()[0]-1, mask_eye.size()[0]-1))                                               
+    
+    return weight * (calc_loss(output, method='VAR'), calc_loss(target, method='VAR'), 'L1') \
+                     + weight_eye * (calc_loss(resize_mask_eye, calc_loss(output, target, method='VAR1'), method='L1')) \
+                     + weight_eye * (calc_loss(resize_mask_eye, calc_loss(output, target, method='VAR2'), method='L1'))
+    
 def mask_loss(mask, threshold=False, method='L1', loss_weight_config={}):
     
     weight = torch.tensor(loss_weight_config['mask_loss'], requires_grad=False).cuda()
     threshold = torch.tensor(threshold, requires_grad=False).float().cuda()
     if threshold:
-        
         thres = threshold - mask
         thres = torch.unsqueeze(thres, dim=0)
         zerom = torch.unsqueeze(torch.zeros(mask.size()), dim=0).cuda()
@@ -46,6 +65,12 @@ def mask_loss(mask, threshold=False, method='L1', loss_weight_config={}):
         target = torch.zeros(mask.size()).cuda()
 
         return weight * (calc_loss(mask, target, method=method) + calc_loss(mask, method='VAR'))
+    
+def eye_loss(output, target, eye_mask, method='L1', loss_weight_config={}):
+    
+    weight = torch.tensor(loss_weight_config['eye_loss'], requires_grad=False).cuda()
+    
+    return weight * (calc_loss(eye_mask*output, eye_mask*target, method=method))
 
 def adversarial_loss_discriminator(maskfakepred, fakepred, realpred, method='L2', loss_weight_config={}):
     
