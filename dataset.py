@@ -11,7 +11,7 @@ class Dataset(data.Dataset):
     def __init__(self, config, filenames):
         
         self.config = config['augmentation']
-        
+        self.eye_mask_dir = config['eye_mask_dir']
         self.Aimages = []
         self.Bimages = []
         self.transformer_list = []
@@ -22,23 +22,33 @@ class Dataset(data.Dataset):
 
             image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB') 
             
+            if self.eye_mask_dir:
+                eyemask = Image.open(os.path.join(config['eye_mask_dir'][0] + imagename)).convert('RGB')
+                eyemask = np.array(eyemask)
+            
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
             image = Image.fromarray(np.array(image)[:,:,::-1])
-            #display(image)
+            
+            image = np.concatenate([image, eyemask], axis=-1)
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image) 
-            #display(image)
-            
+          
             self.Aimages.append(image)
             
         for imagename in os.listdir(config['imagepath'][1]):
         
             image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
+            if self.eye_mask_dir:
+                eyemask = Image.open(os.path.join(config['eye_mask_dir'][1] + imagename)).convert('RGB')
+                eyemask = np.array(eyemask)
+            
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
             image = Image.fromarray(np.array(image)[:,:,::-1])
+            
+            image = np.concatenate([image, eyemask], axis=-1)
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
             
@@ -75,8 +85,17 @@ class Dataset(data.Dataset):
         assert np.all(np.array(randomAimage) >= 0), 'need positive matrix'
         assert np.all(np.array(randomBimage) >= 0), 'need positive matrix'
 
-        warpedA, realA = warp_and_aug(randomAimage, self.config, self.filenames)
-        warpedB, realB = warp_and_aug(randomBimage, self.config, self.filenames)
+        warpedA, realAandeye = warp_and_aug(randomAimage, self.config, self.filenames)
+        warpedB, realBandeye = warp_and_aug(randomBimage, self.config, self.filenames)
+        
+        warpedA = warpedA[:,:,:3]
+        warpedB = warpedB[:,:,:3]
+        
+        realA = realAandeye[:,:,:3]
+        realB = realBandeye[:,:,:3]
+        
+        eyemaskA = realAandeye[:,:,-1]
+        eyemaskB = realBandeye[:,:,-1]
         
         assert np.all(realA >= 0), 'need positive matrix'
         assert np.all(warpedA >= 0), 'need positive matrix'
@@ -84,10 +103,12 @@ class Dataset(data.Dataset):
         # the data type should 'uint8' in order to satisfy the to_tensor requirement
         warpedA = transforms.functional.to_tensor(warpedA.astype('uint8')).float()
         realA = transforms.functional.to_tensor(realA.astype('uint8')).float()
+        eyemaksA = transforms.functional.to_tensor(eyemaskA.astype('uint8')).float()
         warpedB = transforms.functional.to_tensor(warpedB.astype('uint8')).float()
         realB = transforms.functional.to_tensor(realB.astype('uint8')).float()
+        eyemaskB = transforms.functional.to_tensor(eyemaskB.astype('uint8')).float()
         
-        return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedB, 'realB': realB}
+        return {'warpedA': warpedA, 'realA': realA, 'warpedB': warpedB, 'realB': realB, 'eyemaskA': eyemaskA, 'eyemaskB': eyemaskB}
         
     def get_transform(self, config):
         
