@@ -13,15 +13,19 @@ import visualization as vis
 config = {'isTrain': True,
           'loss_config':{'pl_on': False,
                          'cyclegan_on': False,
+                         'edgeloss_on': False,
+                         'eyeloss_on': False,
                          'lr_factor': 1.,
                          'mask_threshold': 0.,
-                              }
+                              },
           'loss_weight_config': {'reconstruction_loss': 1,
                                  'adversarial_loss_discriminator': 0.1,
                                  'adversarial_loss_generator': 0.1,
                                  'cycle_consistency_loss': 0.1,
                                  'perceptual_loss': [0.03, 0.1, 0.3, 0.1],
                                  'mask_loss': 0.01,
+                                 'eye_loss': 0.1,
+                                 'edge_loss': 0.1,
                                 },
           
           'G_lr': 0.0001,
@@ -39,7 +43,7 @@ config = {'isTrain': True,
                           'motion_blur': 0.6,
                          },
           'imagepath':['./faceA/align/', './faceB/align/'],
-          
+          'eye_mask_dir':['./faceA/eyemask/', './faceB/eyemask/'],
          }
 
 # set global tensor type, must match the model type
