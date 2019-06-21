@@ -42,7 +42,7 @@ config = {'isTrain': True,
                           'flip': True,
                           'motion_blur': 0.6,
                          },
-          'imagepath':['./faceA/align/', './faceB/align/'],
+          'imagepath':['./faceA/rgb/', './faceB/rgb/'],
           'eye_mask_dir':['./faceA/eyemask/', './faceB/eyemask/'],
          }
 
