@@ -34,7 +34,7 @@ class Dataset(data.Dataset):
 
             eyemask = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(eyemask)
             
-            imageandmask = Image.fromarray(np.concatenate([np.array(eyemask), np.array(image)], axis=-1))
+            imageandmask = Image.fromarray(np.concatenate([np.array(eyemask), np.array(image)[:,:,None]], axis=-1))
           
             self.Aimages.append(imageandmask)
             
@@ -54,7 +54,7 @@ class Dataset(data.Dataset):
 
             eyemask = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(eyemask)
             
-            imageandmask = Image.fromarray(np.concatenate([np.array(eyemask), np.array(image)], axis=-1))
+            imageandmask = Image.fromarray(np.concatenate([np.array(eyemask), np.array(image)[:,:,None], axis=-1))
             
             self.Bimages.append(imageandmask)
     
