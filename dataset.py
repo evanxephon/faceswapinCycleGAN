@@ -110,7 +110,7 @@ class Dataset(data.Dataset):
         # the data type should 'uint8' in order to satisfy the to_tensor requirement
         warpedA = transforms.functional.to_tensor(warpedA.astype('uint8')).float()
         realA = transforms.functional.to_tensor(realA.astype('uint8')).float()
-        eyemaksA = transforms.functional.to_tensor(eyemaskA.astype('uint8')).float()
+        eyemaskA = transforms.functional.to_tensor(eyemaskA.astype('uint8')).float()
         warpedB = transforms.functional.to_tensor(warpedB.astype('uint8')).float()
         realB = transforms.functional.to_tensor(realB.astype('uint8')).float()
         eyemaskB = transforms.functional.to_tensor(eyemaskB.astype('uint8')).float()
