@@ -437,7 +437,7 @@ class CycleGAN(nn.Module):
         
         self.set_requires_grad([self.DiscriminatorA, self.DiscriminatorB], False)
         
-        if self.loss_config['cyclegan_on]: 
+        if self.loss_config['cyclegan_on']: 
             
             self.optimizer_Cycle.zero_grad()
             self.backward_Cycle_A()
