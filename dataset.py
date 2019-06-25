@@ -23,7 +23,7 @@ class Dataset(data.Dataset):
             image = Image.open(os.path.join(config['imagepath'][0] + imagename)).convert('RGB') 
             
             if self.eye_mask_dir:
-                eyemask = Image.open(os.path.join(config['eye_mask_dir'][0] + imagename)).convert('RGB')
+                eyemask = Image.open(os.path.join(config['eye_mask_dir'][0] + imagename))
             
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
@@ -43,7 +43,7 @@ class Dataset(data.Dataset):
             image = Image.open(os.path.join(config['imagepath'][1] + imagename)).convert('RGB')
             
             if self.eye_mask_dir:
-                eyemask = Image.open(os.path.join(config['eye_mask_dir'][1] + imagename)).convert('RGB')
+                eyemask = Image.open(os.path.join(config['eye_mask_dir'][1] + imagename))
 
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
