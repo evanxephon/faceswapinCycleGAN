@@ -149,7 +149,7 @@ def getEyeMask(face, landmarks):
     kernel = np.ones([h//12, w//10], np.uint8)
     face[landmarks[0][0],landmarks[0][1],:] = 255
     face[landmarks[1][0],landmarks[1][1],:] = 255
-    eyemask = cv2.dilate(face, kernel, iteration=1)
+    eyemask = cv2.dilate(face, kernel, iterations=1)
     return eyemask
     
 if __name__ == '__main__':
