@@ -14,7 +14,7 @@ def outputmask(imgpath, savepath):
    
         boundingbox, landmarks = detect_faces(imgloaded)
         eyemask = np.zeros(imgloaded.size).astype('uint8')[:,:,None]
-        if landmarks:
+        if isinstance(landmarks, np.ndarray):
             eyeisat = [[int(landmarks.flatten()[i]), int(landmarks.flatten()[i+5])] for i in range(2)]
         #print(eyeisat)
         eyemask = gf.getEyeMask(eyemask, eyeisat)
