@@ -25,7 +25,7 @@ def calc_loss(output, target=None, method='L2'):
         w = output.shape[3]
         loss = abst(output[:,:,:h-1,:w-1], output[:,:,1:,:w-1]) + abst(output[:,:,:h-1,:w-1], output[:,:,:h-1,1:])
         
-    elif method == 'VAR1'
+    elif method == 'VAR1':
         h = output.shape[2]
         loss = abst(output[:,:,:h-1,:w-1], output[:,:,1:,:w-1])
         
