@@ -24,17 +24,19 @@ class Dataset(data.Dataset):
             
             if self.eye_mask_dir:
                 eyemask = Image.open(os.path.join(config['eye_mask_dir'][0] + imagename)).convert('RGB')
-                eyemask = np.array(eyemask)
             
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
-            image = np.concatenate([eyemask, np.array(image)], axis=-1)
-            
+            # turn to bgr mode
             image = Image.fromarray(np.array(image)[:,:,::-1])
             
             image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image) 
+
+            eyemask = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(eyemask)
+            
+            imageandmask = Image.fromearray(np.concatenate([np.array(eyemask), np.array(image)], axis=-1))
           
-            self.Aimages.append(image)
+            self.Aimages.append(imageandmask)
             
         for imagename in os.listdir(config['imagepath'][1]):
         
@@ -42,17 +44,19 @@ class Dataset(data.Dataset):
             
             if self.eye_mask_dir:
                 eyemask = Image.open(os.path.join(config['eye_mask_dir'][1] + imagename)).convert('RGB')
-                eyemask = np.array(eyemask)
-            
+
             assert np.all(np.array(image) >= 0), 'need positive matrix'
             
-            image = np.concatenate([eyemask, np.array(image)], axis=-1)
-            
+            # turn to bgr mode
             image = Image.fromarray(np.array(image)[:,:,::-1])
             
-            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image)
+            image = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(image) 
+
+            eyemask = transforms.Resize((config['resize'],config['resize']), interpolation=Image.BICUBIC)(eyemask)
             
-            self.Bimages.append(image)
+            imageandmask = Image.fromearray(np.concatenate([np.array(eyemask), np.array(image)], axis=-1))
+            
+            self.Bimages.append(imageandmask)
     
         
     def __len__(self):
